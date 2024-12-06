@@ -47,7 +47,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
-						"value": "@activity('filter_files').output",
+						"value": "@activity('filter_files').output.Value",
 						"type": "Expression"
 					},
 					"isSequential": true,
