@@ -1,0 +1,67 @@
+{
+	"name": "02_get_metadata",
+	"properties": {
+		"description": "get  metadat info",
+		"activities": [
+			{
+				"name": "get calendar file info",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "ds_adls2_poc_csv_param",
+						"type": "DatasetReference",
+						"parameters": {
+							"root_path": {
+								"value": "@pipeline().parameters.root_path",
+								"type": "Expression"
+							},
+							"directory_path": {
+								"value": "@pipeline().parameters.directory_path",
+								"type": "Expression"
+							},
+							"file_name": {
+								"value": "@pipeline().parameters.file_name",
+								"type": "Expression"
+							}
+						}
+					},
+					"fieldList": [],
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"enablePartitionDiscovery": false
+					},
+					"formatSettings": {
+						"type": "DelimitedTextReadSettings"
+					}
+				}
+			}
+		],
+		"parameters": {
+			"root_path": {
+				"type": "string",
+				"defaultValue": "explore-adls"
+			},
+			"directory_path": {
+				"type": "string",
+				"defaultValue": "poc/inbound/nycRaaw"
+			},
+			"file_name": {
+				"type": "string",
+				"defaultValue": "calendar.csv"
+			}
+		},
+		"folder": {
+			"name": "activities"
+		},
+		"annotations": []
+	}
+}
