@@ -1,0 +1,33 @@
+{
+	"name": "ds_az_sql_poc_sample_db_param",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_az_sql_sample_db",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"schema": {
+				"type": "string"
+			},
+			"table": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "poc"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": {
+				"value": "@dataset().schema",
+				"type": "Expression"
+			},
+			"table": {
+				"value": "@dataset().table",
+				"type": "Expression"
+			}
+		}
+	}
+}
