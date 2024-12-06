@@ -1,5 +1,5 @@
 {
-	"name": "ds_az_sql_sample_db",
+	"name": "ds_az_sql_poc_sample_db",
 	"properties": {
 		"description": "sample db dataset without params",
 		"linkedServiceName": {
