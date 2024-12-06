@@ -6,17 +6,6 @@
 			"referenceName": "ls_adls2_explorestorage_poc",
 			"type": "LinkedServiceReference"
 		},
-		"parameters": {
-			"root_path": {
-				"type": "string"
-			},
-			"directory_path": {
-				"type": "string"
-			},
-			"file_name": {
-				"type": "string"
-			}
-		},
 		"folder": {
 			"name": "poc"
 		},

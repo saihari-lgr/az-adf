@@ -17,22 +17,8 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataset": {
-						"referenceName": "ds_adls2_poc_csv_param",
-						"type": "DatasetReference",
-						"parameters": {
-							"root_path": {
-								"value": "@pipeline().parameters.root_path",
-								"type": "Expression"
-							},
-							"directory_path": {
-								"value": "@pipeline().parameters.directory_path",
-								"type": "Expression"
-							},
-							"file_name": {
-								"value": "@pipeline().parameters.file_name",
-								"type": "Expression"
-							}
-						}
+						"referenceName": "ds_adls2_poc_csv",
+						"type": "DatasetReference"
 					},
 					"fieldList": [
 						"childItems"
