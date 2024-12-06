@@ -1,7 +1,7 @@
 {
-	"name": "ds_adls2_poc_csv",
+	"name": "ds_adls2_poc_csv_param",
 	"properties": {
-		"description": "dataset to connect csv files",
+		"description": "ds for csv passing parameter",
 		"linkedServiceName": {
 			"referenceName": "ls_adls2_explorestorage_poc",
 			"type": "LinkedServiceReference"
