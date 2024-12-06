@@ -1,0 +1,9 @@
+{
+	"name": "ws-explore-adf",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "30930f0f-d788-4d07-b6c3-cbe982cfbb99",
+		"tenantId": "d27c62fe-44db-4aa1-86a1-e671cf60a138"
+	}
+}
