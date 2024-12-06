@@ -46,8 +46,12 @@
 				],
 				"userProperties": [],
 				"typeProperties": {
+					"items": {
+						"value": "@activity('get calendar file info').output.itemType",
+						"type": "Expression"
+					},
 					"condition": {
-						"value": "@activity('get calendar file info').output.itemType == \"File\"",
+						"value": "@equals(item(),'File')",
 						"type": "Expression"
 					}
 				}
