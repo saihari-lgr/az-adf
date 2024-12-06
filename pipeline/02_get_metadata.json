@@ -4,7 +4,7 @@
 		"description": "get  metadat info",
 		"activities": [
 			{
-				"name": "get calendar file info",
+				"name": "get inbound raw content",
 				"type": "GetMetadata",
 				"dependsOn": [],
 				"policy": {
@@ -34,11 +34,11 @@
 				}
 			},
 			{
-				"name": "get only files",
-				"type": "Filter",
+				"name": "iterate over raw",
+				"type": "ForEach",
 				"dependsOn": [
 					{
-						"activity": "get calendar file info",
+						"activity": "get inbound raw content",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -47,16 +47,37 @@
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
-						"value": "@activity('get calendar file info').output.itemType",
+						"value": "@activity('get inbound raw content').output.childItems",
 						"type": "Expression"
 					},
-					"condition": {
-						"value": "@equals(item(),'File')",
-						"type": "Expression"
-					}
+					"isSequential": true,
+					"activities": [
+						{
+							"name": "set content",
+							"type": "SetVariable",
+							"dependsOn": [],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "file_name",
+								"value": {
+									"value": "@item().name",
+									"type": "Expression"
+								}
+							}
+						}
+					]
 				}
 			}
 		],
+		"variables": {
+			"file_name": {
+				"type": "String"
+			}
+		},
 		"folder": {
 			"name": "activities"
 		},
