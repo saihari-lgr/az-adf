@@ -1,0 +1,97 @@
+{
+	"name": "ds_adls2_poc_csv",
+	"properties": {
+		"description": "dataset to connect csv files",
+		"linkedServiceName": {
+			"referenceName": "ls_adls2_explorestorage_poc",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"root_path": {
+				"type": "string"
+			},
+			"directory_path": {
+				"type": "string"
+			},
+			"file_name": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "poc"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@dataset().file_name",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@dataset().directory_path",
+					"type": "Expression"
+				},
+				"fileSystem": {
+					"value": "@dataset().root_path",
+					"type": "Expression"
+				}
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "date_key",
+				"type": "String"
+			},
+			{
+				"name": "date",
+				"type": "String"
+			},
+			{
+				"name": "year",
+				"type": "String"
+			},
+			{
+				"name": "month",
+				"type": "String"
+			},
+			{
+				"name": "day",
+				"type": "String"
+			},
+			{
+				"name": "day_name",
+				"type": "String"
+			},
+			{
+				"name": "day_of_year",
+				"type": "String"
+			},
+			{
+				"name": "week_of_month",
+				"type": "String"
+			},
+			{
+				"name": "week_of_year",
+				"type": "String"
+			},
+			{
+				"name": "month_name",
+				"type": "String"
+			},
+			{
+				"name": "year_month",
+				"type": "String"
+			},
+			{
+				"name": "year_week",
+				"type": "String"
+			}
+		]
+	}
+}
