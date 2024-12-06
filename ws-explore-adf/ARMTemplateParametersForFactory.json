@@ -1,0 +1,27 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "ws-explore-adf"
+		},
+		"ls_adls2_explorestorage_poc_accountKey": {
+			"value": ""
+		},
+		"ls_az_sql_sample_db_password": {
+			"value": ""
+		},
+		"ls_adls2_explorestorage_poc_properties_typeProperties_url": {
+			"value": "https://explorestorage1710.dfs.core.windows.net/"
+		},
+		"ls_az_sql_sample_db_properties_typeProperties_server": {
+			"value": "explore-sql-server.database.windows.net"
+		},
+		"ls_az_sql_sample_db_properties_typeProperties_database": {
+			"value": "sample"
+		},
+		"ls_az_sql_sample_db_properties_typeProperties_userName": {
+			"value": "azexplore"
+		}
+	}
+}
