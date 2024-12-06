@@ -34,7 +34,9 @@
 							}
 						}
 					},
-					"fieldList": [],
+					"fieldList": [
+						"childItems"
+					],
 					"storeSettings": {
 						"type": "AzureBlobFSReadSettings",
 						"enablePartitionDiscovery": false
@@ -52,11 +54,11 @@
 			},
 			"directory_path": {
 				"type": "string",
-				"defaultValue": "poc/inbound/nycRaaw"
+				"defaultValue": "/poc/inbound/nycRaw"
 			},
 			"file_name": {
 				"type": "string",
-				"defaultValue": "calendar.csv"
+				"defaultValue": "/calendar.csv"
 			}
 		},
 		"folder": {
