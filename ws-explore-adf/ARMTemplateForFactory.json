@@ -91,7 +91,7 @@
 				"description": "get  metadat info",
 				"activities": [
 					{
-						"name": "get calendar file info",
+						"name": "get inbound raw content",
 						"type": "GetMetadata",
 						"dependsOn": [],
 						"policy": {
@@ -120,10 +120,158 @@
 								"type": "DelimitedTextReadSettings"
 							}
 						}
+					},
+					{
+						"name": "iterate over files",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "filter_files",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('filter_files').output.Value",
+								"type": "Expression"
+							},
+							"isSequential": true,
+							"activities": [
+								{
+									"name": "formet file name",
+									"type": "SetVariable",
+									"dependsOn": [],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "file_name",
+										"value": {
+											"value": "@concat(split(item().name,'.')[0],'_',formatDateTime(utcnow(), 'MMddyyyyHHmmss'),'.',split(item().name,'.')[1])",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "Copy file to outbound",
+									"type": "Copy",
+									"dependsOn": [
+										{
+											"activity": "formet file name",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "DelimitedTextSource",
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true,
+												"enablePartitionDiscovery": false
+											},
+											"formatSettings": {
+												"type": "DelimitedTextReadSettings"
+											}
+										},
+										"sink": {
+											"type": "DelimitedTextSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "DelimitedTextWriteSettings",
+												"quoteAllText": true,
+												"fileExtension": ".txt"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "ds_adls2_poc_csv_param",
+											"type": "DatasetReference",
+											"parameters": {
+												"root_path": "explore-adls",
+												"directory_path": "poc/inbound/nycRaw",
+												"file_name": {
+													"value": "@item().name",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "ds_adls2_poc_csv_param",
+											"type": "DatasetReference",
+											"parameters": {
+												"root_path": "explore-adls",
+												"directory_path": "poc/outbound/nycRaw",
+												"file_name": {
+													"value": "@variables('file_name')",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							]
+						}
+					},
+					{
+						"name": "filter_files",
+						"type": "Filter",
+						"dependsOn": [
+							{
+								"activity": "get inbound raw content",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('get inbound raw content').output.childItems",
+								"type": "Expression"
+							},
+							"condition": {
+								"value": "@equals(item().type,'File')",
+								"type": "Expression"
+							}
+						}
 					}
 				],
 				"policy": {
 					"elapsedTimeMetric": {}
+				},
+				"variables": {
+					"file_name": {
+						"type": "String"
+					}
 				},
 				"folder": {
 					"name": "activities"
@@ -131,7 +279,8 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/ds_adls2_poc_csv')]"
+				"[concat(variables('factoryId'), '/datasets/ds_adls2_poc_csv')]",
+				"[concat(variables('factoryId'), '/datasets/ds_adls2_poc_csv_param')]"
 			]
 		},
 		{
