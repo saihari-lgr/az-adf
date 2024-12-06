@@ -34,11 +34,11 @@
 				}
 			},
 			{
-				"name": "iterate over raw",
+				"name": "iterate over files",
 				"type": "ForEach",
 				"dependsOn": [
 					{
-						"activity": "Filter1",
+						"activity": "filter_files",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -73,7 +73,7 @@
 				}
 			},
 			{
-				"name": "Filter1",
+				"name": "filter_files",
 				"type": "Filter",
 				"dependsOn": [
 					{
@@ -86,11 +86,11 @@
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
-						"value": "@activity('get inbound raw content').output.itemType",
+						"value": "@activity('get inbound raw content').output.childItems",
 						"type": "Expression"
 					},
 					"condition": {
-						"value": "@equals(item(),'File')",
+						"value": "@equals(item().type,'File')",
 						"type": "Expression"
 					}
 				}
