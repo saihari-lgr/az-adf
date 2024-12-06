@@ -1,0 +1,26 @@
+{
+	"name": "ds_az_sql_sample_db",
+	"properties": {
+		"description": "sample db dataset without params",
+		"linkedServiceName": {
+			"referenceName": "ls_az_sql_sample_db",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "poc"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "Id",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Name",
+				"type": "varchar"
+			}
+		]
+	}
+}
