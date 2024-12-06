@@ -47,7 +47,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
-						"value": "@activity('get inbound raw content').output.childItems",
+						"value": "@activity('filter_files').output",
 						"type": "Expression"
 					},
 					"isSequential": true,
