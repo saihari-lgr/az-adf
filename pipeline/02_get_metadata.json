@@ -64,7 +64,7 @@
 							"typeProperties": {
 								"variableName": "file_name",
 								"value": {
-									"value": "@item().name",
+									"value": "@concat(split(item().name,'.')[0],'__',split(item().name,'.')[1])",
 									"type": "Expression"
 								}
 							}
