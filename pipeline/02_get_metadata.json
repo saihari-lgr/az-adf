@@ -64,7 +64,7 @@
 							"typeProperties": {
 								"variableName": "file_name",
 								"value": {
-									"value": "@concat(split(item().name,'.')[0],'__',split(item().name,'.')[1])",
+									"value": "@concat(split(item().name,'.')[0],formatDateTime(utcnow(), 'dd-MM-yyyy HH:mm:ss'),'.',split(item().name,'.')[1])",
 									"type": "Expression"
 								}
 							}
