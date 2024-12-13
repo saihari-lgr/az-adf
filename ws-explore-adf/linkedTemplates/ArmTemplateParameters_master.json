@@ -26,18 +26,6 @@
 		"ls_webApi_properties_typeProperties_url": {
 			"value": "@{linkedService().baseUrl}"
 		},
-		"trigger_poc_api_data_properties_01_web_api_parameters_base_url_param": {
-			"value": "https://reqres.in/api/users"
-		},
-		"trigger_poc_api_data_properties_01_web_api_parameters_relative_url_param": {
-			"value": "https://reqres.in/api/users?page=1"
-		},
-		"trigger_poc_api_data_properties_01_web_api_parameters_root_path_param": {
-			"value": "explore-adls"
-		},
-		"trigger_poc_api_data_properties_01_web_api_parameters_directory_path_param": {
-			"value": "poc/inbound/nycRaw"
-		},
 		"containerUri": {
 			"value": ""
 		},

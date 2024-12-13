@@ -34,22 +34,6 @@
 		"ls_webApi_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "@{linkedService().baseUrl}"
-		},
-		"trigger_poc_api_data_properties_01_web_api_parameters_base_url_param": {
-			"type": "string",
-			"defaultValue": "https://reqres.in/api/users"
-		},
-		"trigger_poc_api_data_properties_01_web_api_parameters_relative_url_param": {
-			"type": "string",
-			"defaultValue": "https://reqres.in/api/users?page=1"
-		},
-		"trigger_poc_api_data_properties_01_web_api_parameters_root_path_param": {
-			"type": "string",
-			"defaultValue": "explore-adls"
-		},
-		"trigger_poc_api_data_properties_01_web_api_parameters_directory_path_param": {
-			"type": "string",
-			"defaultValue": "poc/inbound/nycRaw"
 		}
 	},
 	"variables": {
@@ -1323,53 +1307,6 @@
 				}
 			},
 			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/trigger_poc_api_data')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"runtimeState": "Started",
-				"pipelines": [
-					{
-						"pipelineReference": {
-							"referenceName": "01_web_api",
-							"type": "PipelineReference"
-						},
-						"parameters": {
-							"base_url_param": "[parameters('trigger_poc_api_data_properties_01_web_api_parameters_base_url_param')]",
-							"relative_url_param": "[parameters('trigger_poc_api_data_properties_01_web_api_parameters_relative_url_param')]",
-							"root_path_param": "[parameters('trigger_poc_api_data_properties_01_web_api_parameters_root_path_param')]",
-							"directory_path_param": "[parameters('trigger_poc_api_data_properties_01_web_api_parameters_directory_path_param')]"
-						}
-					}
-				],
-				"type": "ScheduleTrigger",
-				"typeProperties": {
-					"recurrence": {
-						"frequency": "Week",
-						"interval": 1,
-						"startTime": "2024-12-13T13:20:00",
-						"endTime": "2024-12-14T13:20:00",
-						"timeZone": "India Standard Time",
-						"schedule": {
-							"minutes": [
-								0
-							],
-							"hours": [
-								1
-							],
-							"weekDays": [
-								"Sunday"
-							]
-						}
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/01_web_api')]"
-			]
 		}
 	]
 }
