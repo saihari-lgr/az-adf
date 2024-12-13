@@ -28,7 +28,21 @@
 							"typeProperties": {
 								"dataset": {
 									"referenceName": "ds_adls2_poc_csv_param",
-									"type": "DatasetReference"
+									"type": "DatasetReference",
+									"parameters": {
+										"root_path": {
+											"value": "@pipeline().parameters.root_path_param",
+											"type": "Expression"
+										},
+										"directory_path": {
+											"value": "@pipeline().parameters.directory_path_param",
+											"type": "Expression"
+										},
+										"file_name": {
+											"value": "@pipeline().parameters.file_name",
+											"type": "Expression"
+										}
+									}
 								},
 								"fieldList": [
 									"exists"
@@ -40,6 +54,52 @@
 								"formatSettings": {
 									"type": "DelimitedTextReadSettings"
 								}
+							}
+						},
+						{
+							"name": "check for file exists",
+							"type": "IfCondition",
+							"dependsOn": [
+								{
+									"activity": "Get Metadata1",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"expression": {
+									"value": "@activity('Get Metadata1').output.exists",
+									"type": "Expression"
+								},
+								"ifFalseActivities": [
+									{
+										"name": "Wait  for 1 min",
+										"type": "Wait",
+										"dependsOn": [],
+										"userProperties": [],
+										"typeProperties": {
+											"waitTimeInSeconds": 60
+										}
+									}
+								],
+								"ifTrueActivities": [
+									{
+										"name": "isFileExists",
+										"type": "SetVariable",
+										"dependsOn": [],
+										"policy": {
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "IsFileExists",
+											"value": true
+										}
+									}
+								]
 							}
 						}
 					],
