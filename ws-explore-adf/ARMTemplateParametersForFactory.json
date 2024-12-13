@@ -22,6 +22,9 @@
 		},
 		"ls_az_sql_sample_db_properties_typeProperties_userName": {
 			"value": "azexplore"
+		},
+		"ls_webApi_properties_typeProperties_url": {
+			"value": "@{linkedService().baseUrl}"
 		}
 	}
 }
