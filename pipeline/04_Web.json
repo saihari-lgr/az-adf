@@ -17,16 +17,20 @@
 				"typeProperties": {
 					"method": "GET",
 					"url": {
-						"value": "@pipeline().parameters.url_param",
+						"value": "@pipeline().parameters.base_url_param",
 						"type": "Expression"
 					}
 				}
 			}
 		],
 		"parameters": {
-			"url_param": {
+			"base_url_param": {
 				"type": "string",
-				"defaultValue": "https://dummyapi.online/api/movies"
+				"defaultValue": "https://reqres.in/api/users"
+			},
+			"relative_url_param": {
+				"type": "string",
+				"defaultValue": "https://reqres.in/api/users?page=1"
 			}
 		},
 		"folder": {
