@@ -25,6 +25,8 @@
 			{
 				"name": "copy json to file",
 				"type": "Copy",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "FileNameFormat",
@@ -95,6 +97,25 @@
 			{
 				"name": "FileNameFormat",
 				"type": "SetVariable",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "fileName",
+					"value": {
+						"value": "@concat('User_Reponse','_',formatDateTime(utcnow(), 'MMddyyyyHHmmss'),'.json')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "set total pages",
+				"type": "SetVariable",
 				"dependsOn": [
 					{
 						"activity": "Get API Data",
@@ -109,11 +130,50 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"variableName": "fileName",
+					"variableName": "var_total_pages",
 					"value": {
-						"value": "@concat('User_Reponse','_',formatDateTime(utcnow(), 'MMddyyyyHHmmss'),'.json')",
+						"value": "@activity('Get API Data').output.total_pages",
 						"type": "Expression"
 					}
+				}
+			},
+			{
+				"name": "loop over pages",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "set total pages",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@variables('var_total_pages')",
+						"type": "Expression"
+					},
+					"isSequential": true,
+					"activities": [
+						{
+							"name": "itemNo",
+							"type": "SetVariable",
+							"dependsOn": [],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "itemNo",
+								"value": {
+									"value": "@item()",
+									"type": "Expression"
+								}
+							}
+						}
+					]
 				}
 			}
 		],
@@ -138,6 +198,12 @@
 		"variables": {
 			"fileName": {
 				"type": "String"
+			},
+			"var_total_pages": {
+				"type": "Integer"
+			},
+			"itemNo": {
+				"type": "Integer"
 			}
 		},
 		"folder": {
