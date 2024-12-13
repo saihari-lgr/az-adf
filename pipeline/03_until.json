@@ -118,7 +118,7 @@
 			},
 			"file_name": {
 				"type": "string",
-				"defaultValue": "calendar.csv"
+				"defaultValue": "calendar4.csv"
 			}
 		},
 		"variables": {
