@@ -124,7 +124,7 @@
 		"variables": {
 			"IsFileExists": {
 				"type": "Boolean",
-				"defaultValue": "False"
+				"defaultValue": false
 			}
 		},
 		"folder": {
