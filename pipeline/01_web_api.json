@@ -5,7 +5,14 @@
 			{
 				"name": "Get API Data",
 				"type": "WebActivity",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "pipeline_started",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"timeout": "0.12:00:00",
 					"retry": 0,
@@ -138,6 +145,105 @@
 						"value": "@activity('Get API Data').output.total_pages",
 						"type": "Expression"
 					}
+				}
+			},
+			{
+				"name": "pipeline_started",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[dbo].[usp_PipelineLogging]",
+					"storedProcedureParameters": {
+						"AddDate": {
+							"value": {
+								"value": "@string(utcNow())",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"DataFactoryName": {
+							"value": {
+								"value": "@pipeline().DataFactory",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"PipelineGroupId": {
+							"value": {
+								"value": "@pipeline().GroupId",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"PipelineName": {
+							"value": {
+								"value": "@pipeline().Pipeline",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"PipelineRunId": {
+							"value": {
+								"value": "@pipeline().RunId",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"PipelinetriggeredByPipelineName": {
+							"value": {
+								"value": "@pipeline()?.TriggeredByPipelineName",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"PipelinetriggeredByPipelineRunId": {
+							"value": {
+								"value": "@pipeline()?.TriggeredByPipelineRunId",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"PipelineTriggerId": {
+							"value": {
+								"value": "@pipeline().TriggerId",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"PipelineTriggerName": {
+							"value": {
+								"value": "@pipeline().TriggerTime",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"PipelineTriggerTime": {
+							"value": {
+								"value": "@pipeline().TriggerTime",
+								"type": "Expression"
+							},
+							"type": "String"
+						},
+						"PipelineTriggerType": {
+							"value": {
+								"value": "@pipeline().TriggerType",
+								"type": "Expression"
+							},
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "ls_az_sql_sample_db",
+					"type": "LinkedServiceReference"
 				}
 			}
 		],
