@@ -133,10 +133,6 @@
 			"directory_path_param": {
 				"type": "string",
 				"defaultValue": "poc/inbound/nycRaw"
-			},
-			"file_name_param": {
-				"type": "string",
-				"defaultValue": "ApiResponse.json"
 			}
 		},
 		"variables": {
