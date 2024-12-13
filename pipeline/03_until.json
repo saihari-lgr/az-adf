@@ -105,6 +105,99 @@
 					],
 					"timeout": "0.12:00:00"
 				}
+			},
+			{
+				"name": "copy file to dest",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "process file if exists",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_adls2_poc_csv_param",
+						"type": "DatasetReference",
+						"parameters": {
+							"root_path": {
+								"value": "@pipeline().parameters.root_path_param",
+								"type": "Expression"
+							},
+							"directory_path": {
+								"value": "@pipeline().parameters.directory_path_param",
+								"type": "Expression"
+							},
+							"file_name": {
+								"value": "@pipeline().parameters.file_name",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_adls2_poc_csv_param",
+						"type": "DatasetReference",
+						"parameters": {
+							"root_path": {
+								"value": "@pipeline().parameters.root_path_dest_param",
+								"type": "Expression"
+							},
+							"directory_path": {
+								"value": "@pipeline().parameters.directory_path_dest_param",
+								"type": "Expression"
+							},
+							"file_name": {
+								"value": "@pipeline().parameters.file_name_dest_param",
+								"type": "Expression"
+							}
+						}
+					}
+				]
 			}
 		],
 		"parameters": {
@@ -118,7 +211,19 @@
 			},
 			"file_name": {
 				"type": "string",
-				"defaultValue": "calendar.csv"
+				"defaultValue": "calendar4.csv"
+			},
+			"root_path_dest_param": {
+				"type": "string",
+				"defaultValue": "explore-adls"
+			},
+			"directory_path_dest_param": {
+				"type": "string",
+				"defaultValue": "poc/output/nycRaw"
+			},
+			"file_name_dest_param": {
+				"type": "string",
+				"defaultValue": "calendar4.csv"
 			}
 		},
 		"variables": {
