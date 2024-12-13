@@ -104,6 +104,194 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/01_web_api')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Get API Data",
+						"type": "WebActivity",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "GET",
+							"headers": {},
+							"url": {
+								"value": "@pipeline().parameters.base_url_param",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "copy json to file",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "FileNameFormat",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "RestSource",
+								"httpRequestTimeout": "00:01:40",
+								"requestInterval": "00.00:00:00.010",
+								"requestMethod": "GET",
+								"paginationRules": {
+									"supportRFC5988": "true"
+								}
+							},
+							"sink": {
+								"type": "JsonSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "JsonWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "ds_webApi",
+								"type": "DatasetReference",
+								"parameters": {
+									"relativeUrl": "https://reqres.in/api/users?page=1"
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "ds_adls2_poc_json",
+								"type": "DatasetReference",
+								"parameters": {
+									"root_path": {
+										"value": "@pipeline().parameters.root_path_param",
+										"type": "Expression"
+									},
+									"directory_path_param": {
+										"value": "@pipeline().parameters.directory_path_param",
+										"type": "Expression"
+									},
+									"file_name_param": {
+										"value": "@variables('fileName')",
+										"type": "Expression"
+									}
+								}
+							}
+						]
+					},
+					{
+						"name": "FileNameFormat",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "total_pages",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "fileName",
+							"value": {
+								"value": "@concat('User_Reponse','_',formatDateTime(utcnow(), 'MMddyyyyHHmmss'),'.json')",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "total_pages",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "Get API Data",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "var_total_pages",
+							"value": {
+								"value": "@activity('Get API Data').output.total_pages",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"base_url_param": {
+						"type": "string",
+						"defaultValue": "https://reqres.in/api/users"
+					},
+					"relative_url_param": {
+						"type": "string",
+						"defaultValue": "https://reqres.in/api/users?page=1"
+					},
+					"root_path_param": {
+						"type": "string",
+						"defaultValue": "explore-adls"
+					},
+					"directory_path_param": {
+						"type": "string",
+						"defaultValue": "poc/inbound/nycRaw"
+					}
+				},
+				"variables": {
+					"fileName": {
+						"type": "String"
+					},
+					"var_total_pages": {
+						"type": "Integer"
+					},
+					"itemNo": {
+						"type": "Integer"
+					}
+				},
+				"folder": {
+					"name": "poc"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ds_webApi')]",
+				"[concat(variables('factoryId'), '/datasets/ds_adls2_poc_json')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/02_get_metadata')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -291,15 +479,6 @@
 				"variables": {
 					"file_name": {
 						"type": "String"
-					},
-					"fileName": {
-						"type": "String"
-					},
-					"var_total_pages": {
-						"type": "Integer"
-					},
-					"itemNo": {
-						"type": "Integer"
 					}
 				},
 				"folder": {
@@ -311,298 +490,6 @@
 				"[concat(variables('factoryId'), '/datasets/ds_adls2_poc_csv')]",
 				"[concat(variables('factoryId'), '/datasets/ds_adls2_poc_csv_param')]"
 			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ds_adls2_poc_csv')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "ds for csv passing parameter",
-				"linkedServiceName": {
-					"referenceName": "ls_adls2_explorestorage_poc",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "poc"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"folderPath": "poc/inbound/nycRaw",
-						"fileSystem": "explore-adls"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": [
-					{
-						"name": "date_key",
-						"type": "String"
-					},
-					{
-						"name": "date",
-						"type": "String"
-					},
-					{
-						"name": "year",
-						"type": "String"
-					},
-					{
-						"name": "month",
-						"type": "String"
-					},
-					{
-						"name": "day",
-						"type": "String"
-					},
-					{
-						"name": "day_name",
-						"type": "String"
-					},
-					{
-						"name": "day_of_year",
-						"type": "String"
-					},
-					{
-						"name": "week_of_month",
-						"type": "String"
-					},
-					{
-						"name": "week_of_year",
-						"type": "String"
-					},
-					{
-						"name": "month_name",
-						"type": "String"
-					},
-					{
-						"name": "year_month",
-						"type": "String"
-					},
-					{
-						"name": "year_week",
-						"type": "String"
-					}
-				]
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ls_adls2_explorestorage_poc')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ds_adls2_poc_csv_param')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "ds for csv passing parameter",
-				"linkedServiceName": {
-					"referenceName": "ls_adls2_explorestorage_poc",
-					"type": "LinkedServiceReference"
-				},
-				"parameters": {
-					"root_path": {
-						"type": "string"
-					},
-					"directory_path": {
-						"type": "string"
-					},
-					"file_name": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "poc"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"fileName": {
-							"value": "@dataset().file_name",
-							"type": "Expression"
-						},
-						"folderPath": {
-							"value": "@dataset().directory_path",
-							"type": "Expression"
-						},
-						"fileSystem": {
-							"value": "@dataset().root_path",
-							"type": "Expression"
-						}
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": [
-					{
-						"name": "date_key",
-						"type": "String"
-					},
-					{
-						"name": "date",
-						"type": "String"
-					},
-					{
-						"name": "year",
-						"type": "String"
-					},
-					{
-						"name": "month",
-						"type": "String"
-					},
-					{
-						"name": "day",
-						"type": "String"
-					},
-					{
-						"name": "day_name",
-						"type": "String"
-					},
-					{
-						"name": "day_of_year",
-						"type": "String"
-					},
-					{
-						"name": "week_of_month",
-						"type": "String"
-					},
-					{
-						"name": "week_of_year",
-						"type": "String"
-					},
-					{
-						"name": "month_name",
-						"type": "String"
-					},
-					{
-						"name": "year_month",
-						"type": "String"
-					},
-					{
-						"name": "year_week",
-						"type": "String"
-					}
-				]
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ls_adls2_explorestorage_poc')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ds_az_sql_poc_sample_db')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "sample db dataset without params",
-				"linkedServiceName": {
-					"referenceName": "ls_az_sql_sample_db",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "poc"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [
-					{
-						"name": "Id",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "Name",
-						"type": "varchar"
-					}
-				],
-				"typeProperties": {}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ls_az_sql_sample_db')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ds_az_sql_poc_sample_db_param')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "ls_az_sql_sample_db",
-					"type": "LinkedServiceReference"
-				},
-				"parameters": {
-					"schema": {
-						"type": "string"
-					},
-					"table": {
-						"type": "string"
-					}
-				},
-				"folder": {
-					"name": "poc"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [],
-				"typeProperties": {
-					"schema": {
-						"value": "@dataset().schema",
-						"type": "Expression"
-					},
-					"table": {
-						"value": "@dataset().table",
-						"type": "Expression"
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ls_az_sql_sample_db')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ls_adls2_explorestorage_poc')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "AzureBlobFS",
-				"typeProperties": {
-					"url": "[parameters('ls_adls2_explorestorage_poc_properties_typeProperties_url')]",
-					"accountKey": {
-						"type": "SecureString",
-						"value": "[parameters('ls_adls2_explorestorage_poc_accountKey')]"
-					}
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ls_az_sql_sample_db')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "AzureSqlDatabase",
-				"typeProperties": {
-					"server": "[parameters('ls_az_sql_sample_db_properties_typeProperties_server')]",
-					"database": "[parameters('ls_az_sql_sample_db_properties_typeProperties_database')]",
-					"encrypt": "optional",
-					"trustServerCertificate": false,
-					"authenticationType": "SQL",
-					"userName": "[parameters('ls_az_sql_sample_db_properties_typeProperties_userName')]",
-					"password": {
-						"type": "SecureString",
-						"value": "[parameters('ls_az_sql_sample_db_password')]"
-					}
-				}
-			},
-			"dependsOn": []
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/03_until')]",
@@ -657,6 +544,7 @@
 										],
 										"storeSettings": {
 											"type": "AzureBlobFSReadSettings",
+											"recursive": true,
 											"enablePartitionDiscovery": false
 										},
 										"formatSettings": {
@@ -1038,59 +926,186 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/ls_webApi')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"parameters": {
-					"baseUrl": {
-						"type": "String",
-						"defaultValue": "https://reqres.in/api/users"
-					}
-				},
-				"annotations": [],
-				"type": "RestService",
-				"typeProperties": {
-					"url": "[parameters('ls_webApi_properties_typeProperties_url')]",
-					"enableServerCertificateValidation": false,
-					"authenticationType": "Anonymous"
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ds_webApi')]",
+			"name": "[concat(parameters('factoryName'), '/ds_adls2_poc_csv')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
+				"description": "ds for csv passing parameter",
 				"linkedServiceName": {
-					"referenceName": "ls_webApi",
-					"type": "LinkedServiceReference",
-					"parameters": {
-						"baseUrl": "https://reqres.in/api/users"
+					"referenceName": "ls_adls2_explorestorage_poc",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "poc"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "poc/inbound/nycRaw",
+						"fileSystem": "explore-adls"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "date_key",
+						"type": "String"
+					},
+					{
+						"name": "date",
+						"type": "String"
+					},
+					{
+						"name": "year",
+						"type": "String"
+					},
+					{
+						"name": "month",
+						"type": "String"
+					},
+					{
+						"name": "day",
+						"type": "String"
+					},
+					{
+						"name": "day_name",
+						"type": "String"
+					},
+					{
+						"name": "day_of_year",
+						"type": "String"
+					},
+					{
+						"name": "week_of_month",
+						"type": "String"
+					},
+					{
+						"name": "week_of_year",
+						"type": "String"
+					},
+					{
+						"name": "month_name",
+						"type": "String"
+					},
+					{
+						"name": "year_month",
+						"type": "String"
+					},
+					{
+						"name": "year_week",
+						"type": "String"
 					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_adls2_explorestorage_poc')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_adls2_poc_csv_param')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "ds for csv passing parameter",
+				"linkedServiceName": {
+					"referenceName": "ls_adls2_explorestorage_poc",
+					"type": "LinkedServiceReference"
 				},
 				"parameters": {
-					"relativeUrl": {
-						"type": "String",
-						"defaultValue": "https://reqres.in/api/users?page=1"
+					"root_path": {
+						"type": "string"
+					},
+					"directory_path": {
+						"type": "string"
+					},
+					"file_name": {
+						"type": "string"
 					}
 				},
 				"folder": {
 					"name": "poc"
 				},
 				"annotations": [],
-				"type": "RestResource",
+				"type": "DelimitedText",
 				"typeProperties": {
-					"relativeUrl": {
-						"value": "@dataset().relativeUrl",
-						"type": "Expression"
-					}
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@dataset().file_name",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@dataset().directory_path",
+							"type": "Expression"
+						},
+						"fileSystem": {
+							"value": "@dataset().root_path",
+							"type": "Expression"
+						}
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
 				},
-				"schema": []
+				"schema": [
+					{
+						"name": "date_key",
+						"type": "String"
+					},
+					{
+						"name": "date",
+						"type": "String"
+					},
+					{
+						"name": "year",
+						"type": "String"
+					},
+					{
+						"name": "month",
+						"type": "String"
+					},
+					{
+						"name": "day",
+						"type": "String"
+					},
+					{
+						"name": "day_name",
+						"type": "String"
+					},
+					{
+						"name": "day_of_year",
+						"type": "String"
+					},
+					{
+						"name": "week_of_month",
+						"type": "String"
+					},
+					{
+						"name": "week_of_year",
+						"type": "String"
+					},
+					{
+						"name": "month_name",
+						"type": "String"
+					},
+					{
+						"name": "year_month",
+						"type": "String"
+					},
+					{
+						"name": "year_week",
+						"type": "String"
+					}
+				]
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ls_webApi')]"
+				"[concat(variables('factoryId'), '/linkedServices/ls_adls2_explorestorage_poc')]"
 			]
 		},
 		{
@@ -1145,192 +1160,169 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/01_web_api')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
+			"name": "[concat(parameters('factoryName'), '/ds_az_sql_poc_sample_db')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"activities": [
+				"description": "sample db dataset without params",
+				"linkedServiceName": {
+					"referenceName": "ls_az_sql_sample_db",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "poc"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
 					{
-						"name": "Get API Data",
-						"type": "WebActivity",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"method": "GET",
-							"headers": {},
-							"url": {
-								"value": "@pipeline().parameters.base_url_param",
-								"type": "Expression"
-							}
-						}
+						"name": "Id",
+						"type": "int",
+						"precision": 10
 					},
 					{
-						"name": "copy json to file",
-						"type": "Copy",
-						"dependsOn": [
-							{
-								"activity": "FileNameFormat",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "RestSource",
-								"httpRequestTimeout": "00:01:40",
-								"requestInterval": "00.00:00:00.010",
-								"requestMethod": "GET",
-								"paginationRules": {
-									"supportRFC5988": "true"
-								}
-							},
-							"sink": {
-								"type": "JsonSink",
-								"storeSettings": {
-									"type": "AzureBlobFSWriteSettings"
-								},
-								"formatSettings": {
-									"type": "JsonWriteSettings"
-								}
-							},
-							"enableStaging": false
-						},
-						"inputs": [
-							{
-								"referenceName": "ds_webApi",
-								"type": "DatasetReference",
-								"parameters": {
-									"relativeUrl": "https://reqres.in/api/users?page=1"
-								}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "ds_adls2_poc_json",
-								"type": "DatasetReference",
-								"parameters": {
-									"root_path": {
-										"value": "@pipeline().parameters.root_path_param",
-										"type": "Expression"
-									},
-									"directory_path_param": {
-										"value": "@pipeline().parameters.directory_path_param",
-										"type": "Expression"
-									},
-									"file_name_param": {
-										"value": "@variables('fileName')",
-										"type": "Expression"
-									}
-								}
-							}
-						]
-					},
-					{
-						"name": "FileNameFormat",
-						"type": "SetVariable",
-						"dependsOn": [
-							{
-								"activity": "total_pages",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"variableName": "fileName",
-							"value": {
-								"value": "@concat('User_Reponse','_',formatDateTime(utcnow(), 'MMddyyyyHHmmss'),'.json')",
-								"type": "Expression"
-							}
-						}
-					},
-					{
-						"name": "total_pages",
-						"type": "SetVariable",
-						"dependsOn": [
-							{
-								"activity": "Get API Data",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"variableName": "var_total_pages",
-							"value": {
-								"value": "@activity('Get API Data').output.total_pages",
-								"type": "Expression"
-							}
-						}
+						"name": "Name",
+						"type": "varchar"
 					}
 				],
-				"policy": {
-					"elapsedTimeMetric": {}
+				"typeProperties": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_az_sql_sample_db')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_az_sql_poc_sample_db_param')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_az_sql_sample_db",
+					"type": "LinkedServiceReference"
 				},
 				"parameters": {
-					"base_url_param": {
-						"type": "string",
-						"defaultValue": "https://reqres.in/api/users"
+					"schema": {
+						"type": "string"
 					},
-					"relative_url_param": {
-						"type": "string",
-						"defaultValue": "https://reqres.in/api/users?page=1"
-					},
-					"root_path_param": {
-						"type": "string",
-						"defaultValue": "explore-adls"
-					},
-					"directory_path_param": {
-						"type": "string",
-						"defaultValue": "poc/inbound/nycRaw"
-					}
-				},
-				"variables": {
-					"fileName": {
-						"type": "String"
-					},
-					"var_total_pages": {
-						"type": "Integer"
-					},
-					"itemNo": {
-						"type": "Integer"
+					"table": {
+						"type": "string"
 					}
 				},
 				"folder": {
 					"name": "poc"
 				},
-				"annotations": []
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": {
+						"value": "@dataset().schema",
+						"type": "Expression"
+					},
+					"table": {
+						"value": "@dataset().table",
+						"type": "Expression"
+					}
+				}
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/ds_webApi')]",
-				"[concat(variables('factoryId'), '/datasets/ds_adls2_poc_json')]"
+				"[concat(variables('factoryId'), '/linkedServices/ls_az_sql_sample_db')]"
 			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_webApi')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_webApi",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"baseUrl": "https://reqres.in/api/users"
+					}
+				},
+				"parameters": {
+					"relativeUrl": {
+						"type": "String",
+						"defaultValue": "https://reqres.in/api/users?page=1"
+					}
+				},
+				"folder": {
+					"name": "poc"
+				},
+				"annotations": [],
+				"type": "RestResource",
+				"typeProperties": {
+					"relativeUrl": {
+						"value": "@dataset().relativeUrl",
+						"type": "Expression"
+					}
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_webApi')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_adls2_explorestorage_poc')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('ls_adls2_explorestorage_poc_properties_typeProperties_url')]",
+					"accountKey": {
+						"type": "SecureString",
+						"value": "[parameters('ls_adls2_explorestorage_poc_accountKey')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_az_sql_sample_db')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"server": "[parameters('ls_az_sql_sample_db_properties_typeProperties_server')]",
+					"database": "[parameters('ls_az_sql_sample_db_properties_typeProperties_database')]",
+					"encrypt": "optional",
+					"trustServerCertificate": false,
+					"authenticationType": "SQL",
+					"userName": "[parameters('ls_az_sql_sample_db_properties_typeProperties_userName')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('ls_az_sql_sample_db_password')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_webApi')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"parameters": {
+					"baseUrl": {
+						"type": "String",
+						"defaultValue": "https://reqres.in/api/users"
+					}
+				},
+				"annotations": [],
+				"type": "RestService",
+				"typeProperties": {
+					"url": "[parameters('ls_webApi_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": false,
+					"authenticationType": "Anonymous"
+				}
+			},
+			"dependsOn": []
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/trigger_poc_api_data')]",
