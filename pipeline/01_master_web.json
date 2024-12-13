@@ -1,0 +1,33 @@
+{
+	"name": "01_master_web",
+	"properties": {
+		"activities": [
+			{
+				"name": "web api master",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "01_web_api",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"base_url_param": "https://reqres.in/api/users",
+						"relative_url_param": "https://reqres.in/api/users?page=1",
+						"root_path_param": "explore-adls",
+						"directory_path_param": "poc/inbound/nycRaw"
+					}
+				}
+			}
+		],
+		"folder": {
+			"name": "poc"
+		},
+		"annotations": []
+	}
+}
