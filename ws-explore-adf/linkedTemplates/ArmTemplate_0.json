@@ -101,6 +101,86 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/00')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Until1",
+						"type": "Until",
+						"state": "Inactive",
+						"onInactiveMarkAs": "Succeeded",
+						"dependsOn": [
+							{
+								"activity": "total_page",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@equals(variables('total_page'),5)",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "page_count_inc",
+									"type": "SetVariable",
+									"dependsOn": [],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "page_count_incr",
+										"value": {
+											"value": "@add(variables('page_count_incr'),1)",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"timeout": "0.12:00:00"
+						}
+					},
+					{
+						"name": "total_page",
+						"type": "SetVariable",
+						"dependsOn": [],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "total_page",
+							"value": 5
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"variables": {
+					"total_page": {
+						"type": "Integer"
+					},
+					"page_count_incr": {
+						"type": "Integer"
+					}
+				},
+				"folder": {
+					"name": "activities"
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/ds_adls2_poc_csv')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -1112,6 +1192,15 @@
 					"IsFileExists": {
 						"type": "Boolean",
 						"defaultValue": false
+					},
+					"total_page": {
+						"type": "Integer"
+					},
+					"page_count": {
+						"type": "Integer"
+					},
+					"page_count_incr": {
+						"type": "Integer"
 					}
 				},
 				"folder": {
@@ -1295,6 +1384,15 @@
 						"type": "Integer"
 					},
 					"itemNo": {
+						"type": "Integer"
+					},
+					"total_page": {
+						"type": "Integer"
+					},
+					"page_count": {
+						"type": "Integer"
+					},
+					"page_count_incr": {
 						"type": "Integer"
 					}
 				},
