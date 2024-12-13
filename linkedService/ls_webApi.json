@@ -1,0 +1,18 @@
+{
+	"name": "ls_webApi",
+	"properties": {
+		"parameters": {
+			"baseUrl": {
+				"type": "String",
+				"defaultValue": "https://reqres.in/api/users"
+			}
+		},
+		"annotations": [],
+		"type": "RestService",
+		"typeProperties": {
+			"url": "@{linkedService().baseUrl}",
+			"enableServerCertificateValidation": false,
+			"authenticationType": "Anonymous"
+		}
+	}
+}
