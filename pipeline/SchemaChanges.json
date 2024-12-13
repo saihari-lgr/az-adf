@@ -1,0 +1,37 @@
+{
+	"name": "SchemaChanges",
+	"properties": {
+		"activities": [
+			{
+				"name": "Create Tables",
+				"type": "Script",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "ls_az_sql_sample_db",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "Query",
+							"text": "IF NOT EXISTS(select  * from sys.tables where [name] = 'PipelineLogging')\r\nBEGIN\r\n\tCREATE TABLE PipelineLogging\r\n\t(\r\n\t\tId\tint PRIMARY KEY IDENTITY(1,1)\r\n\t\t,DataFactoryName\tVarchar(1000)\r\n\t\t,PipelineName\tVarchar(1000)\r\n\t\t,PipelineGroupId\tVarchar(1000)\r\n\t\t,PipelineRunId\tVarchar(1000)\r\n\t\t,PipelineTriggerId\tVarchar(1000)\r\n\t\t,PipelineTriggerName\tVarchar(1000)\r\n\t\t,PipelineTriggerTime\tVarchar(1000)\r\n\t\t,PipelineTriggerType\tVarchar(1000)\r\n\t\t,PipelinetriggeredByPipelineName\tVarchar(1000)\r\n\t\t,PipelinetriggeredByPipelineRunId\tVarchar(1000)\r\n\t\t,AddDate\tVarchar(100)\r\n\t)\r\nEND\r\n\r\n"
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00"
+				}
+			}
+		],
+		"folder": {
+			"name": "poc"
+		},
+		"annotations": []
+	}
+}
