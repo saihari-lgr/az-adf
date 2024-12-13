@@ -1,0 +1,178 @@
+{
+	"name": "01_web_api",
+	"properties": {
+		"activities": [
+			{
+				"name": "Get API Data",
+				"type": "WebActivity",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "GET",
+					"url": {
+						"value": "@pipeline().parameters.base_url_param",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "copy json to file",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "FileNameFormat",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "RestSource",
+						"httpRequestTimeout": "00:01:40",
+						"requestInterval": "00.00:00:00.010",
+						"requestMethod": "GET",
+						"paginationRules": {
+							"supportRFC5988": "true"
+						}
+					},
+					"sink": {
+						"type": "JsonSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "JsonWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_webApi",
+						"type": "DatasetReference",
+						"parameters": {
+							"relativeUrl": "https://reqres.in/api/users?page=1"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_adls2_poc_json",
+						"type": "DatasetReference",
+						"parameters": {
+							"root_path": {
+								"value": "@pipeline().parameters.root_path_param",
+								"type": "Expression"
+							},
+							"directory_path_param": {
+								"value": "@pipeline().parameters.directory_path_param",
+								"type": "Expression"
+							},
+							"file_name_param": {
+								"value": "@variables('fileName')",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "FileNameFormat",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "total_pages",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "fileName",
+					"value": {
+						"value": "@concat('User_Reponse','_',formatDateTime(utcnow(), 'MMddyyyyHHmmss'),'.json')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "total_pages",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Get API Data",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "var_total_pages",
+					"value": {
+						"value": "@activity('Get API Data').output.total_pages",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"parameters": {
+			"base_url_param": {
+				"type": "string",
+				"defaultValue": "https://reqres.in/api/users"
+			},
+			"relative_url_param": {
+				"type": "string",
+				"defaultValue": "https://reqres.in/api/users?page=1"
+			},
+			"root_path_param": {
+				"type": "string",
+				"defaultValue": "explore-adls"
+			},
+			"directory_path_param": {
+				"type": "string",
+				"defaultValue": "poc/inbound/nycRaw"
+			}
+		},
+		"variables": {
+			"fileName": {
+				"type": "String"
+			},
+			"var_total_pages": {
+				"type": "Integer"
+			},
+			"itemNo": {
+				"type": "Integer"
+			}
+		},
+		"folder": {
+			"name": "poc"
+		},
+		"annotations": []
+	}
+}
