@@ -20,19 +20,11 @@
 		"type": "ScheduleTrigger",
 		"typeProperties": {
 			"recurrence": {
-				"frequency": "Day",
+				"frequency": "Minute",
 				"interval": 1,
 				"startTime": "2024-12-13T13:20:00",
 				"endTime": "2024-12-14T13:20:00",
-				"timeZone": "India Standard Time",
-				"schedule": {
-					"minutes": [
-						0
-					],
-					"hours": [
-						1
-					]
-				}
+				"timeZone": "India Standard Time"
 			}
 		}
 	}
