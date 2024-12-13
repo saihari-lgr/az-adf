@@ -1,0 +1,39 @@
+{
+	"name": "trigger_poc_api_data",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Started",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "01_web_api",
+					"type": "PipelineReference"
+				},
+				"parameters": {
+					"base_url_param": "https://reqres.in/api/users",
+					"relative_url_param": "https://reqres.in/api/users?page=1",
+					"root_path_param": "explore-adls",
+					"directory_path_param": "poc/inbound/nycRaw"
+				}
+			}
+		],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Day",
+				"interval": 1,
+				"startTime": "2024-12-13T13:20:00",
+				"endTime": "2024-12-14T13:20:00",
+				"timeZone": "India Standard Time",
+				"schedule": {
+					"minutes": [
+						0
+					],
+					"hours": [
+						1
+					]
+				}
+			}
+		}
+	}
+}
