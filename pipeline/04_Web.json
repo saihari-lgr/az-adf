@@ -27,7 +27,7 @@
 				"type": "Copy",
 				"dependsOn": [
 					{
-						"activity": "Get API Data",
+						"activity": "FileNameFormat",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -85,12 +85,36 @@
 								"type": "Expression"
 							},
 							"file_name_param": {
-								"value": "@pipeline().parameters.file_name_param",
+								"value": "@variables('fileName')",
 								"type": "Expression"
 							}
 						}
 					}
 				]
+			},
+			{
+				"name": "FileNameFormat",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Get API Data",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "fileName",
+					"value": {
+						"value": "@concat('User_Reponse','_',formatDateTime(utcnow(), 'MMddyyyyHHmmss'),'.json')",
+						"type": "Expression"
+					}
+				}
 			}
 		],
 		"parameters": {
@@ -113,6 +137,11 @@
 			"file_name_param": {
 				"type": "string",
 				"defaultValue": "ApiResponse.json"
+			}
+		},
+		"variables": {
+			"fileName": {
+				"type": "String"
 			}
 		},
 		"folder": {
