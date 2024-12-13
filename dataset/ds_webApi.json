@@ -1,0 +1,30 @@
+{
+	"name": "ds_webApi",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_webApi",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"baseUrl": "https://reqres.in/api/users"
+			}
+		},
+		"parameters": {
+			"relativeUrl": {
+				"type": "String",
+				"defaultValue": "https://reqres.in/api/users?page=1"
+			}
+		},
+		"folder": {
+			"name": "poc"
+		},
+		"annotations": [],
+		"type": "RestResource",
+		"typeProperties": {
+			"relativeUrl": {
+				"value": "@dataset().relativeUrl",
+				"type": "Expression"
+			}
+		},
+		"schema": []
+	}
+}
