@@ -35,6 +35,22 @@
 			"type": "string",
 			"defaultValue": "@{linkedService().baseUrl}"
 		},
+		"trigger_poc_api_data_properties_01_web_api_parameters_base_url_param": {
+			"type": "string",
+			"defaultValue": "https://reqres.in/api/users"
+		},
+		"trigger_poc_api_data_properties_01_web_api_parameters_relative_url_param": {
+			"type": "string",
+			"defaultValue": "https://reqres.in/api/users?page=1"
+		},
+		"trigger_poc_api_data_properties_01_web_api_parameters_root_path_param": {
+			"type": "string",
+			"defaultValue": "explore-adls"
+		},
+		"trigger_poc_api_data_properties_01_web_api_parameters_directory_path_param": {
+			"type": "string",
+			"defaultValue": "poc/inbound/nycRaw"
+		},
 		"containerUri": {
 			"type": "string",
 			"metadata": "URI to storage account containing linked ARM templates"
@@ -82,6 +98,18 @@
 					},
 					"ls_webApi_properties_typeProperties_url": {
 						"value": "[parameters('ls_webApi_properties_typeProperties_url')]"
+					},
+					"trigger_poc_api_data_properties_01_web_api_parameters_base_url_param": {
+						"value": "[parameters('trigger_poc_api_data_properties_01_web_api_parameters_base_url_param')]"
+					},
+					"trigger_poc_api_data_properties_01_web_api_parameters_relative_url_param": {
+						"value": "[parameters('trigger_poc_api_data_properties_01_web_api_parameters_relative_url_param')]"
+					},
+					"trigger_poc_api_data_properties_01_web_api_parameters_root_path_param": {
+						"value": "[parameters('trigger_poc_api_data_properties_01_web_api_parameters_root_path_param')]"
+					},
+					"trigger_poc_api_data_properties_01_web_api_parameters_directory_path_param": {
+						"value": "[parameters('trigger_poc_api_data_properties_01_web_api_parameters_directory_path_param')]"
 					}
 				}
 			},
