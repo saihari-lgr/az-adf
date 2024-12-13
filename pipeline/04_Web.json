@@ -114,8 +114,8 @@
 				}
 			},
 			{
-				"name": "set total pages",
-				"type": "SetVariable",
+				"name": "loop over pages",
+				"type": "ForEach",
 				"dependsOn": [
 					{
 						"activity": "Get API Data",
@@ -124,34 +124,10 @@
 						]
 					}
 				],
-				"policy": {
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"variableName": "var_total_pages",
-					"value": {
-						"value": "@activity('Get API Data').output.total_pages",
-						"type": "Expression"
-					}
-				}
-			},
-			{
-				"name": "loop over pages",
-				"type": "ForEach",
-				"dependsOn": [
-					{
-						"activity": "set total pages",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
-						"value": "@variables('var_total_pages').value",
+						"value": "@activity('Get API Data').output.total_pages",
 						"type": "Expression"
 					},
 					"isSequential": true,
