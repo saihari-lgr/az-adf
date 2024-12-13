@@ -151,7 +151,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
-						"value": "@variables('var_total_pages')",
+						"value": "@variables('var_total_pages').value",
 						"type": "Expression"
 					},
 					"isSequential": true,
