@@ -1,0 +1,46 @@
+{
+	"name": "ds_adls2_poc_json",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_adls2_explorestorage_poc",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"root_path": {
+				"type": "String",
+				"defaultValue": "explore-adls"
+			},
+			"directory_path_param": {
+				"type": "String",
+				"defaultValue": "poc/output/nycRaw"
+			},
+			"file_name_param": {
+				"type": "String",
+				"defaultValue": "API_Response.json"
+			}
+		},
+		"folder": {
+			"name": "poc"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@dataset().file_name_param",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@dataset().directory_path_param",
+					"type": "Expression"
+				},
+				"fileSystem": {
+					"value": "@dataset().root_path",
+					"type": "Expression"
+				}
+			}
+		},
+		"schema": {}
+	}
+}
