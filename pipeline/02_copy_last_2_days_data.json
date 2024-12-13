@@ -20,12 +20,12 @@
 						"type": "DatasetReference"
 					},
 					"fieldList": [
-						"lastModified"
+						"childItems"
 					],
 					"storeSettings": {
 						"type": "AzureBlobFSReadSettings",
 						"modifiedDatetimeStart": {
-							"value": "@adddays(utcNow(),-8)",
+							"value": "@adddays(utcNow(),-1)",
 							"type": "Expression"
 						},
 						"modifiedDatetimeEnd": {
@@ -38,8 +38,138 @@
 						"type": "DelimitedTextReadSettings"
 					}
 				}
+			},
+			{
+				"name": "iterate over file",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "get last two days files",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('get last two days files').output.childItems",
+						"type": "Expression"
+					},
+					"isSequential": true,
+					"activities": [
+						{
+							"name": "Copy file",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "DelimitedTextSource",
+									"storeSettings": {
+										"type": "AzureBlobFSReadSettings",
+										"recursive": true,
+										"enablePartitionDiscovery": false
+									},
+									"formatSettings": {
+										"type": "DelimitedTextReadSettings"
+									}
+								},
+								"sink": {
+									"type": "DelimitedTextSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "DelimitedTextWriteSettings",
+										"quoteAllText": true,
+										"fileExtension": ".txt"
+									}
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "ds_adls2_poc_csv_param",
+									"type": "DatasetReference",
+									"parameters": {
+										"root_path": {
+											"value": "@pipeline().parameters.inbound_root_path_param",
+											"type": "Expression"
+										},
+										"directory_path": {
+											"value": "@pipeline().parameters.inbound_directory_path_param",
+											"type": "Expression"
+										},
+										"file_name": {
+											"value": "@item().name",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "ds_adls2_poc_csv_param",
+									"type": "DatasetReference",
+									"parameters": {
+										"root_path": {
+											"value": "@pipeline().parameters.outbound_root_path_param",
+											"type": "Expression"
+										},
+										"directory_path": {
+											"value": "@pipeline().parameters.outbound_directory_path_param",
+											"type": "Expression"
+										},
+										"file_name": {
+											"value": "@item().name",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					]
+				}
 			}
 		],
+		"parameters": {
+			"no_of_days_param": {
+				"type": "int",
+				"defaultValue": 1
+			},
+			"inbound_root_path_param": {
+				"type": "string",
+				"defaultValue": "explore-adls"
+			},
+			"inbound_directory_path_param": {
+				"type": "string",
+				"defaultValue": "poc/inbound/nycRaw"
+			},
+			"outbound_root_path_param": {
+				"type": "string",
+				"defaultValue": "explore-adls"
+			},
+			"outbound_directory_path_param": {
+				"type": "string",
+				"defaultValue": "poc/output/nycRaw"
+			}
+		},
 		"folder": {
 			"name": "poc"
 		},
