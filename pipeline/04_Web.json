@@ -133,20 +133,12 @@
 					"isSequential": true,
 					"activities": [
 						{
-							"name": "itemNo",
-							"type": "SetVariable",
+							"name": "Wait1",
+							"type": "Wait",
 							"dependsOn": [],
-							"policy": {
-								"secureOutput": false,
-								"secureInput": false
-							},
 							"userProperties": [],
 							"typeProperties": {
-								"variableName": "itemNo",
-								"value": {
-									"value": "@item()",
-									"type": "Expression"
-								}
+								"waitTimeInSeconds": 2
 							}
 						}
 					]
