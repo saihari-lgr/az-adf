@@ -2166,30 +2166,112 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/01_master_web')]",
+			"name": "[concat(parameters('factoryName'), '/04_array_to_string_approach_2')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"activities": [
 					{
-						"name": "web api master",
-						"type": "ExecutePipeline",
+						"name": "read file",
+						"type": "Lookup",
 						"dependsOn": [],
 						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
 							"secureInput": false
 						},
 						"userProperties": [],
 						"typeProperties": {
-							"pipeline": {
-								"referenceName": "01_web_api",
-								"type": "PipelineReference"
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
 							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"base_url_param": "https://reqres.in/api/users",
-								"relative_url_param": "https://reqres.in/api/users?page=1",
-								"root_path_param": "explore-adls",
-								"directory_path_param": "poc/inbound/nycRaw"
+							"dataset": {
+								"referenceName": "ds_adls2_poc_csv_param",
+								"type": "DatasetReference",
+								"parameters": {
+									"root_path": {
+										"value": "@pipeline().parameters.param_root_path",
+										"type": "Expression"
+									},
+									"directory_path": {
+										"value": "@pipeline().parameters.param_directory_path",
+										"type": "Expression"
+									},
+									"file_name": {
+										"value": "@pipeline().parameters.param_file_name",
+										"type": "Expression"
+									}
+								}
+							},
+							"firstRowOnly": false
+						}
+					},
+					{
+						"name": "loop over array",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "read file",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('read file').output.value",
+								"type": "Expression"
+							},
+							"isSequential": true,
+							"activities": [
+								{
+									"name": "append mails",
+									"type": "AppendVariable",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "email_array",
+										"value": {
+											"value": "@item().emails",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "email string",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "loop over array",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "email_string",
+							"value": {
+								"value": "@join(variables('email_array'),'; ')",
+								"type": "Expression"
 							}
 						}
 					}
@@ -2197,13 +2279,35 @@
 				"policy": {
 					"elapsedTimeMetric": {}
 				},
+				"parameters": {
+					"param_root_path": {
+						"type": "string",
+						"defaultValue": "explore-adls"
+					},
+					"param_directory_path": {
+						"type": "string",
+						"defaultValue": "poc/inbound/nycRaw"
+					},
+					"param_file_name": {
+						"type": "string",
+						"defaultValue": "array_data.txt"
+					}
+				},
+				"variables": {
+					"email_array": {
+						"type": "Array"
+					},
+					"email_string": {
+						"type": "String"
+					}
+				},
 				"folder": {
 					"name": "poc"
 				},
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/01_web_api')]"
+				"[concat(variables('factoryId'), '/datasets/ds_adls2_poc_csv_param')]"
 			]
 		}
 	]
