@@ -83,7 +83,7 @@
 				}
 			},
 			{
-				"name": "Set variable1",
+				"name": "email string",
 				"type": "SetVariable",
 				"dependsOn": [
 					{
