@@ -1,0 +1,140 @@
+{
+	"name": "03_generate_addition_cols_copying",
+	"properties": {
+		"activities": [
+			{
+				"name": "copy file",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"additionalColumns": [
+							{
+								"name": "SourceFile",
+								"value": "$$FILEPATH"
+							},
+							{
+								"name": "dup_Borough",
+								"value": "$$COLUMN:Borough"
+							},
+							{
+								"name": "pipeline_Name",
+								"value": {
+									"value": "@pipeline().Pipeline",
+									"type": "Expression"
+								}
+							},
+							{
+								"name": "static_Col",
+								"value": "ABCD"
+							}
+						],
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_adls2_poc_csv_param",
+						"type": "DatasetReference",
+						"parameters": {
+							"root_path": {
+								"value": "@pipeline().parameters.param_inbound_root_path",
+								"type": "Expression"
+							},
+							"directory_path": {
+								"value": "@pipeline().parameters.param_inbound_directory_path",
+								"type": "Expression"
+							},
+							"file_name": {
+								"value": "@pipeline().parameters.param_file_name",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_adls2_poc_csv_param",
+						"type": "DatasetReference",
+						"parameters": {
+							"root_path": {
+								"value": "@pipeline().parameters.param_output_root_path",
+								"type": "Expression"
+							},
+							"directory_path": {
+								"value": "@pipeline().parameters.param_output_directory_path",
+								"type": "Expression"
+							},
+							"file_name": {
+								"value": "@pipeline().parameters.param_file_name",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			}
+		],
+		"parameters": {
+			"param_file_name": {
+				"type": "string",
+				"defaultValue": "taxi_zone.csv"
+			},
+			"param_inbound_root_path": {
+				"type": "string",
+				"defaultValue": "explore-adls"
+			},
+			"param_inbound_directory_path": {
+				"type": "string",
+				"defaultValue": "poc/inbound/nycRaw"
+			},
+			"param_output_root_path": {
+				"type": "string",
+				"defaultValue": "explore-adls"
+			},
+			"param_output_directory_path": {
+				"type": "string",
+				"defaultValue": "poc/output/nycRaw"
+			}
+		},
+		"folder": {
+			"name": "poc"
+		},
+		"annotations": []
+	}
+}
