@@ -1,0 +1,113 @@
+{
+	"name": "04_array_to_string_approach_2",
+	"properties": {
+		"activities": [
+			{
+				"name": "read file",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"dataset": {
+						"referenceName": "ds_adls2_poc_csv_param",
+						"type": "DatasetReference",
+						"parameters": {
+							"root_path": {
+								"value": "@pipeline().parameters.param_root_path",
+								"type": "Expression"
+							},
+							"directory_path": {
+								"value": "@pipeline().parameters.param_directory_path",
+								"type": "Expression"
+							},
+							"file_name": {
+								"value": "@pipeline().parameters.param_file_name",
+								"type": "Expression"
+							}
+						}
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "loop over array",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "read file",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('read file').output.value",
+						"type": "Expression"
+					},
+					"isSequential": true,
+					"activities": [
+						{
+							"name": "append mails",
+							"type": "AppendVariable",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "email_array",
+								"value": {
+									"value": "@item().emails",
+									"type": "Expression"
+								}
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"param_root_path": {
+				"type": "string",
+				"defaultValue": "explore-adls"
+			},
+			"param_directory_path": {
+				"type": "string",
+				"defaultValue": "poc/inbound/nycRaw"
+			},
+			"param_file_name": {
+				"type": "string",
+				"defaultValue": "array_data.txt"
+			}
+		},
+		"variables": {
+			"email_array": {
+				"type": "Array"
+			},
+			"email_string": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "poc"
+		},
+		"annotations": []
+	}
+}
