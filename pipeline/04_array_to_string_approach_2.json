@@ -81,6 +81,30 @@
 						}
 					]
 				}
+			},
+			{
+				"name": "Set variable1",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "loop over array",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "email_string",
+					"value": {
+						"value": "@join(variables('email_array'),'; ')",
+						"type": "Expression"
+					}
+				}
 			}
 		],
 		"parameters": {
