@@ -1,0 +1,37 @@
+{
+	"name": "06_copy_tables_in_bulk",
+	"properties": {
+		"activities": [
+			{
+				"name": "get schema and tables",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "select distinct sch.[name] as SchemaName, tab.[name] as TableName \nfrom sys.tables tab\njoin sys.schemas sch on tab.schema_id = sch.schema_id\n",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "ds_az_sql_poc_sample_db",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			}
+		],
+		"folder": {
+			"name": "poc"
+		},
+		"annotations": []
+	}
+}
