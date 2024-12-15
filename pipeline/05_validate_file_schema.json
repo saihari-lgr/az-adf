@@ -152,7 +152,7 @@
 			},
 			"template_name": {
 				"type": "string",
-				"defaultValue": "taxi_zone_Template_InValid.csv"
+				"defaultValue": "taxi_zone_Template_Valid.csv"
 			}
 		},
 		"folder": {
