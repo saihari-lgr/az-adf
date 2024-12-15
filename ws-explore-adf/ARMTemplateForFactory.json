@@ -1730,6 +1730,151 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/04_array_to_string_approach_2')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "read file",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"dataset": {
+								"referenceName": "ds_adls2_poc_csv_param",
+								"type": "DatasetReference",
+								"parameters": {
+									"root_path": {
+										"value": "@pipeline().parameters.param_root_path",
+										"type": "Expression"
+									},
+									"directory_path": {
+										"value": "@pipeline().parameters.param_directory_path",
+										"type": "Expression"
+									},
+									"file_name": {
+										"value": "@pipeline().parameters.param_file_name",
+										"type": "Expression"
+									}
+								}
+							},
+							"firstRowOnly": false
+						}
+					},
+					{
+						"name": "loop over array",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "read file",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('read file').output.value",
+								"type": "Expression"
+							},
+							"isSequential": true,
+							"activities": [
+								{
+									"name": "append mails",
+									"type": "AppendVariable",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "email_array",
+										"value": {
+											"value": "@item().emails",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "email string",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "loop over array",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "email_string",
+							"value": {
+								"value": "@join(variables('email_array'),'; ')",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"param_root_path": {
+						"type": "string",
+						"defaultValue": "explore-adls"
+					},
+					"param_directory_path": {
+						"type": "string",
+						"defaultValue": "poc/inbound/nycRaw"
+					},
+					"param_file_name": {
+						"type": "string",
+						"defaultValue": "array_data.txt"
+					}
+				},
+				"variables": {
+					"email_array": {
+						"type": "Array"
+					},
+					"email_string": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "poc"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ds_adls2_poc_csv_param')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/SchemaChanges')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -2207,14 +2352,14 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/04_array_to_string_approach_2')]",
+			"name": "[concat(parameters('factoryName'), '/05_validate_file_schema')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"activities": [
 					{
-						"name": "read file",
-						"type": "Lookup",
+						"name": "Get File Structure",
+						"type": "GetMetadata",
 						"dependsOn": [],
 						"policy": {
 							"timeout": "0.12:00:00",
@@ -2225,95 +2370,125 @@
 						},
 						"userProperties": [],
 						"typeProperties": {
-							"source": {
-								"type": "DelimitedTextSource",
-								"storeSettings": {
-									"type": "AzureBlobFSReadSettings",
-									"recursive": true,
-									"enablePartitionDiscovery": false
-								},
-								"formatSettings": {
-									"type": "DelimitedTextReadSettings"
-								}
-							},
 							"dataset": {
 								"referenceName": "ds_adls2_poc_csv_param",
 								"type": "DatasetReference",
 								"parameters": {
 									"root_path": {
-										"value": "@pipeline().parameters.param_root_path",
+										"value": "@pipeline().parameters.root_path",
 										"type": "Expression"
 									},
 									"directory_path": {
-										"value": "@pipeline().parameters.param_directory_path",
+										"value": "@pipeline().parameters.directory_path",
 										"type": "Expression"
 									},
 									"file_name": {
-										"value": "@pipeline().parameters.param_file_name",
+										"value": "@pipeline().parameters.file_name",
 										"type": "Expression"
 									}
 								}
 							},
-							"firstRowOnly": false
-						}
-					},
-					{
-						"name": "loop over array",
-						"type": "ForEach",
-						"dependsOn": [
-							{
-								"activity": "read file",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"items": {
-								"value": "@activity('read file').output.value",
-								"type": "Expression"
+							"fieldList": [
+								"structure"
+							],
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"enablePartitionDiscovery": false
 							},
-							"isSequential": true,
-							"activities": [
-								{
-									"name": "append mails",
-									"type": "AppendVariable",
-									"dependsOn": [],
-									"userProperties": [],
-									"typeProperties": {
-										"variableName": "email_array",
-										"value": {
-											"value": "@item().emails",
-											"type": "Expression"
-										}
-									}
-								}
-							]
+							"formatSettings": {
+								"type": "DelimitedTextReadSettings"
+							}
 						}
 					},
 					{
-						"name": "email string",
-						"type": "SetVariable",
-						"dependsOn": [
-							{
-								"activity": "loop over array",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
+						"name": "Get Template Structure",
+						"type": "GetMetadata",
+						"dependsOn": [],
 						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
 							"secureOutput": false,
 							"secureInput": false
 						},
 						"userProperties": [],
 						"typeProperties": {
-							"variableName": "email_string",
-							"value": {
-								"value": "@join(variables('email_array'),'; ')",
-								"type": "Expression"
+							"dataset": {
+								"referenceName": "ds_adls2_poc_csv_param",
+								"type": "DatasetReference",
+								"parameters": {
+									"root_path": {
+										"value": "@pipeline().parameters.root_path",
+										"type": "Expression"
+									},
+									"directory_path": {
+										"value": "@pipeline().parameters.directory_path",
+										"type": "Expression"
+									},
+									"file_name": {
+										"value": "@pipeline().parameters.template_name",
+										"type": "Expression"
+									}
+								}
+							},
+							"fieldList": [
+								"structure"
+							],
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"enablePartitionDiscovery": false
+							},
+							"formatSettings": {
+								"type": "DelimitedTextReadSettings"
 							}
+						}
+					},
+					{
+						"name": "validate file template",
+						"type": "IfCondition",
+						"dependsOn": [
+							{
+								"activity": "Get File Structure",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							},
+							{
+								"activity": "Get Template Structure",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@equals(activity('Get File Structure').output.structure,activity('Get Template Structure').output.structure)",
+								"type": "Expression"
+							},
+							"ifFalseActivities": [
+								{
+									"name": "Fail1",
+									"type": "Fail",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"message": "file validation failed",
+										"errorCode": "404 - In correct schema"
+									}
+								}
+							],
+							"ifTrueActivities": [
+								{
+									"name": "Wait1",
+									"type": "Wait",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"waitTimeInSeconds": 10
+									}
+								}
+							]
 						}
 					}
 				],
@@ -2321,25 +2496,21 @@
 					"elapsedTimeMetric": {}
 				},
 				"parameters": {
-					"param_root_path": {
+					"root_path": {
 						"type": "string",
 						"defaultValue": "explore-adls"
 					},
-					"param_directory_path": {
+					"directory_path": {
 						"type": "string",
 						"defaultValue": "poc/inbound/nycRaw"
 					},
-					"param_file_name": {
+					"file_name": {
 						"type": "string",
-						"defaultValue": "array_data.txt"
-					}
-				},
-				"variables": {
-					"email_array": {
-						"type": "Array"
+						"defaultValue": "taxi_zone.csv"
 					},
-					"email_string": {
-						"type": "String"
+					"template_name": {
+						"type": "string",
+						"defaultValue": "taxi_zone_Template_InValid.csv"
 					}
 				},
 				"folder": {
