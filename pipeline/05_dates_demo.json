@@ -1,0 +1,70 @@
+{
+	"name": "05_dates_demo",
+	"properties": {
+		"activities": [
+			{
+				"name": "s_date",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "v_sd",
+					"value": {
+						"value": "@pipeline().parameters.param_start_date",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "e_date",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "s_date",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "v_ed",
+					"value": {
+						"value": "@pipeline().parameters.param_end_date",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"parameters": {
+			"param_start_date": {
+				"type": "string",
+				"defaultValue": "10-05-2024"
+			},
+			"param_end_date": {
+				"type": "string",
+				"defaultValue": "12-05-2024"
+			}
+		},
+		"variables": {
+			"v_sd": {
+				"type": "String"
+			},
+			"v_ed": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "activities"
+		},
+		"annotations": []
+	}
+}
