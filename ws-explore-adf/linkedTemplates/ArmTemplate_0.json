@@ -82,6 +82,14 @@
 		"Weekly_Tumbling_Window_With_Gap_2_properties_pipeline_parameters_param_end_date": {
 			"type": "string",
 			"defaultValue": "@{formatDateTime(trigger().outputs.windowEndTime,'yyyy-MM-dd')}"
+		},
+		"01_weekly_sat_fri_properties_pipeline_parameters_param_start_date": {
+			"type": "string",
+			"defaultValue": "@{formatDateTime(trigger().outputs.windowStartTime,'yyyy-MM-dd')}"
+		},
+		"01_weekly_sat_fri_properties_pipeline_parameters_param_end_date": {
+			"type": "string",
+			"defaultValue": "@{formatDateTime(trigger().outputs.windowEndTime,'yyyy-MM-dd')}"
 		}
 	},
 	"variables": {
@@ -905,7 +913,7 @@
 			"properties": {
 				"description": "Tumbling window trigger with a 1-day gap between weekly windows",
 				"annotations": [],
-				"runtimeState": "Started",
+				"runtimeState": "Stopped",
 				"pipeline": {
 					"pipelineReference": {
 						"referenceName": "05_dates_demo",
@@ -971,6 +979,41 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/01_weekly_sat_fri')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipeline": {
+					"pipelineReference": {
+						"referenceName": "05_dates_demo",
+						"type": "PipelineReference"
+					},
+					"parameters": {
+						"param_start_date": "[parameters('01_weekly_sat_fri_properties_pipeline_parameters_param_start_date')]",
+						"param_end_date": "[parameters('01_weekly_sat_fri_properties_pipeline_parameters_param_end_date')]"
+					}
+				},
+				"type": "TumblingWindowTrigger",
+				"typeProperties": {
+					"frequency": "Hour",
+					"interval": 168,
+					"startTime": "2024-10-05T00:00:00Z",
+					"endTime": "2025-01-01T23:59:00Z",
+					"delay": "01:00:00",
+					"maxConcurrency": 1,
+					"retryPolicy": {
+						"intervalInSeconds": 30
+					},
+					"dependsOn": []
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/05_dates_demo')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/01_lookup')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -1015,407 +1058,6 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/ds_az_sql_poc_sample_db')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/01_web_api')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Get API Data",
-						"type": "WebActivity",
-						"dependsOn": [
-							{
-								"activity": "pipeline_started",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"method": "GET",
-							"headers": {},
-							"url": {
-								"value": "@pipeline().parameters.base_url_param",
-								"type": "Expression"
-							}
-						}
-					},
-					{
-						"name": "copy json to file",
-						"type": "Copy",
-						"dependsOn": [
-							{
-								"activity": "FileNameFormat",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "RestSource",
-								"httpRequestTimeout": "00:01:40",
-								"requestInterval": "00.00:00:00.010",
-								"requestMethod": "GET",
-								"paginationRules": {
-									"supportRFC5988": "true"
-								}
-							},
-							"sink": {
-								"type": "JsonSink",
-								"storeSettings": {
-									"type": "AzureBlobFSWriteSettings"
-								},
-								"formatSettings": {
-									"type": "JsonWriteSettings"
-								}
-							},
-							"enableStaging": false
-						},
-						"inputs": [
-							{
-								"referenceName": "ds_webApi",
-								"type": "DatasetReference",
-								"parameters": {
-									"relativeUrl": "https://reqres.in/api/users?page=1"
-								}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "ds_adls2_poc_json",
-								"type": "DatasetReference",
-								"parameters": {
-									"root_path": {
-										"value": "@pipeline().parameters.root_path_param",
-										"type": "Expression"
-									},
-									"directory_path_param": {
-										"value": "@pipeline().parameters.directory_path_param",
-										"type": "Expression"
-									},
-									"file_name_param": {
-										"value": "@variables('fileName')",
-										"type": "Expression"
-									}
-								}
-							}
-						]
-					},
-					{
-						"name": "FileNameFormat",
-						"type": "SetVariable",
-						"dependsOn": [
-							{
-								"activity": "total_pages",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"variableName": "fileName",
-							"value": {
-								"value": "@concat('User_Reponse','_',formatDateTime(utcnow(), 'MMddyyyyHHmmss'),'.json')",
-								"type": "Expression"
-							}
-						}
-					},
-					{
-						"name": "total_pages",
-						"type": "SetVariable",
-						"dependsOn": [
-							{
-								"activity": "Get API Data",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"variableName": "var_total_pages",
-							"value": {
-								"value": "@activity('Get API Data').output.total_pages",
-								"type": "Expression"
-							}
-						}
-					},
-					{
-						"name": "pipeline_started",
-						"type": "SqlServerStoredProcedure",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"storedProcedureName": "[[dbo].[usp_PipelineLogging]",
-							"storedProcedureParameters": {
-								"AddDate": {
-									"value": {
-										"value": "@string(utcNow())",
-										"type": "Expression"
-									},
-									"type": "String"
-								},
-								"DataFactoryName": {
-									"value": {
-										"value": "@pipeline().DataFactory",
-										"type": "Expression"
-									},
-									"type": "String"
-								},
-								"PipelineGroupId": {
-									"value": {
-										"value": "@pipeline().GroupId",
-										"type": "Expression"
-									},
-									"type": "String"
-								},
-								"PipelineName": {
-									"value": {
-										"value": "@pipeline().Pipeline",
-										"type": "Expression"
-									},
-									"type": "String"
-								},
-								"PipelineRunId": {
-									"value": {
-										"value": "@pipeline().RunId",
-										"type": "Expression"
-									},
-									"type": "String"
-								},
-								"PipelinetriggeredByPipelineName": {
-									"value": {
-										"value": "@pipeline()?.TriggeredByPipelineName",
-										"type": "Expression"
-									},
-									"type": "String"
-								},
-								"PipelinetriggeredByPipelineRunId": {
-									"value": {
-										"value": "@pipeline()?.TriggeredByPipelineRunId",
-										"type": "Expression"
-									},
-									"type": "String"
-								},
-								"PipelineTriggerId": {
-									"value": {
-										"value": "@pipeline().TriggerId",
-										"type": "Expression"
-									},
-									"type": "String"
-								},
-								"PipelineTriggerName": {
-									"value": {
-										"value": "@pipeline().TriggerTime",
-										"type": "Expression"
-									},
-									"type": "String"
-								},
-								"PipelineTriggerTime": {
-									"value": {
-										"value": "@pipeline().TriggerTime",
-										"type": "Expression"
-									},
-									"type": "String"
-								},
-								"PipelineTriggerType": {
-									"value": {
-										"value": "@pipeline().TriggerType",
-										"type": "Expression"
-									},
-									"type": "String"
-								}
-							}
-						},
-						"linkedServiceName": {
-							"referenceName": "ls_az_sql_sample_db",
-							"type": "LinkedServiceReference"
-						}
-					},
-					{
-						"name": "pipeline_ended",
-						"type": "SqlServerStoredProcedure",
-						"dependsOn": [
-							{
-								"activity": "copy json to file",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"storedProcedureName": "[[dbo].[usp_PipelineLogging]",
-							"storedProcedureParameters": {
-								"AddDate": {
-									"value": {
-										"value": "@string(utcNow())",
-										"type": "Expression"
-									},
-									"type": "String"
-								},
-								"DataFactoryName": {
-									"value": {
-										"value": "@pipeline().DataFactory",
-										"type": "Expression"
-									},
-									"type": "String"
-								},
-								"PipelineGroupId": {
-									"value": {
-										"value": "@pipeline().GroupId",
-										"type": "Expression"
-									},
-									"type": "String"
-								},
-								"PipelineName": {
-									"value": {
-										"value": "@pipeline().Pipeline",
-										"type": "Expression"
-									},
-									"type": "String"
-								},
-								"PipelineRunId": {
-									"value": {
-										"value": "@pipeline().RunId",
-										"type": "Expression"
-									},
-									"type": "String"
-								},
-								"PipelinetriggeredByPipelineName": {
-									"value": {
-										"value": "@pipeline()?.TriggeredByPipelineName",
-										"type": "Expression"
-									},
-									"type": "String"
-								},
-								"PipelinetriggeredByPipelineRunId": {
-									"value": {
-										"value": "@pipeline()?.TriggeredByPipelineRunId",
-										"type": "Expression"
-									},
-									"type": "String"
-								},
-								"PipelineTriggerId": {
-									"value": {
-										"value": "@pipeline().TriggerId",
-										"type": "Expression"
-									},
-									"type": "String"
-								},
-								"PipelineTriggerName": {
-									"value": {
-										"value": "@pipeline().TriggerTime",
-										"type": "Expression"
-									},
-									"type": "String"
-								},
-								"PipelineTriggerTime": {
-									"value": {
-										"value": "@pipeline().TriggerTime",
-										"type": "Expression"
-									},
-									"type": "String"
-								},
-								"PipelineTriggerType": {
-									"value": {
-										"value": "@pipeline().TriggerType",
-										"type": "Expression"
-									},
-									"type": "String"
-								}
-							}
-						},
-						"linkedServiceName": {
-							"referenceName": "ls_az_sql_sample_db",
-							"type": "LinkedServiceReference"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"base_url_param": {
-						"type": "string",
-						"defaultValue": "https://reqres.in/api/users"
-					},
-					"relative_url_param": {
-						"type": "string",
-						"defaultValue": "https://reqres.in/api/users?page=1"
-					},
-					"root_path_param": {
-						"type": "string",
-						"defaultValue": "explore-adls"
-					},
-					"directory_path_param": {
-						"type": "string",
-						"defaultValue": "poc/inbound/nycRaw"
-					}
-				},
-				"variables": {
-					"fileName": {
-						"type": "String"
-					},
-					"var_total_pages": {
-						"type": "Integer"
-					},
-					"itemNo": {
-						"type": "Integer"
-					}
-				},
-				"folder": {
-					"name": "poc"
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/ds_webApi')]",
-				"[concat(variables('factoryId'), '/datasets/ds_adls2_poc_json')]",
-				"[concat(variables('factoryId'), '/linkedServices/ls_az_sql_sample_db')]"
 			]
 		}
 	]
