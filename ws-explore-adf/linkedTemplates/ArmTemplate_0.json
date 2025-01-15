@@ -66,6 +66,14 @@
 		"Weekly_Tumbling_Window_With_Gap_2_properties_pipeline_parameters_param_end_date": {
 			"type": "string",
 			"defaultValue": "@{formatDateTime(trigger().outputs.windowEndTime,'yyyy-MM-dd')}"
+		},
+		"02_date_demo_properties_pipeline_parameters_param_start_date": {
+			"type": "string",
+			"defaultValue": "@{formatDateTime(trigger().outputs.windowStartTime,'yyyy-MM-dd')}"
+		},
+		"02_date_demo_properties_pipeline_parameters_param_end_date": {
+			"type": "string",
+			"defaultValue": "@{formatDateTime(trigger().outputs.windowEndTime,'yyyy-MM-dd')}"
 		}
 	},
 	"variables": {
@@ -828,7 +836,7 @@
 			"properties": {
 				"description": "Tumbling window trigger with a 1-day gap between weekly windows",
 				"annotations": [],
-				"runtimeState": "Started",
+				"runtimeState": "Stopped",
 				"pipeline": {
 					"pipelineReference": {
 						"referenceName": "05_dates_demo",
@@ -845,6 +853,41 @@
 					"interval": 144,
 					"startTime": "2024-10-05T00:00:00Z",
 					"endTime": "2024-12-31T23:59:59Z",
+					"delay": "00:00:00",
+					"maxConcurrency": 1,
+					"retryPolicy": {
+						"intervalInSeconds": 30
+					},
+					"dependsOn": []
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/05_dates_demo')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/02_date_demo')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipeline": {
+					"pipelineReference": {
+						"referenceName": "05_dates_demo",
+						"type": "PipelineReference"
+					},
+					"parameters": {
+						"param_start_date": "[parameters('02_date_demo_properties_pipeline_parameters_param_start_date')]",
+						"param_end_date": "[parameters('02_date_demo_properties_pipeline_parameters_param_end_date')]"
+					}
+				},
+				"type": "TumblingWindowTrigger",
+				"typeProperties": {
+					"frequency": "Hour",
+					"interval": 144,
+					"startTime": "2024-10-05T00:00:00Z",
+					"endTime": "2024-11-03T23:59:00Z",
 					"delay": "00:00:00",
 					"maxConcurrency": 1,
 					"retryPolicy": {
@@ -1486,206 +1529,6 @@
 				},
 				"folder": {
 					"name": "poc"
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/ds_adls2_poc_csv')]",
-				"[concat(variables('factoryId'), '/datasets/ds_adls2_poc_csv_param')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/02_get_metadata')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "get  metadat info",
-				"activities": [
-					{
-						"name": "get inbound raw content",
-						"type": "GetMetadata",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataset": {
-								"referenceName": "ds_adls2_poc_csv",
-								"type": "DatasetReference",
-								"parameters": {}
-							},
-							"fieldList": [
-								"childItems"
-							],
-							"storeSettings": {
-								"type": "AzureBlobFSReadSettings",
-								"recursive": true,
-								"enablePartitionDiscovery": false
-							},
-							"formatSettings": {
-								"type": "DelimitedTextReadSettings"
-							}
-						}
-					},
-					{
-						"name": "iterate over files",
-						"type": "ForEach",
-						"dependsOn": [
-							{
-								"activity": "filter_files",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"items": {
-								"value": "@activity('filter_files').output.Value",
-								"type": "Expression"
-							},
-							"isSequential": true,
-							"activities": [
-								{
-									"name": "formet file name",
-									"type": "SetVariable",
-									"dependsOn": [],
-									"policy": {
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"variableName": "file_name",
-										"value": {
-											"value": "@concat(split(item().name,'.')[0],'_',formatDateTime(utcnow(), 'MMddyyyyHHmmss'),'.',split(item().name,'.')[1])",
-											"type": "Expression"
-										}
-									}
-								},
-								{
-									"name": "Copy file to outbound",
-									"type": "Copy",
-									"dependsOn": [
-										{
-											"activity": "formet file name",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										}
-									],
-									"policy": {
-										"timeout": "0.12:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"source": {
-											"type": "DelimitedTextSource",
-											"storeSettings": {
-												"type": "AzureBlobFSReadSettings",
-												"recursive": true,
-												"enablePartitionDiscovery": false
-											},
-											"formatSettings": {
-												"type": "DelimitedTextReadSettings"
-											}
-										},
-										"sink": {
-											"type": "DelimitedTextSink",
-											"storeSettings": {
-												"type": "AzureBlobFSWriteSettings"
-											},
-											"formatSettings": {
-												"type": "DelimitedTextWriteSettings",
-												"quoteAllText": true,
-												"fileExtension": ".txt"
-											}
-										},
-										"enableStaging": false,
-										"translator": {
-											"type": "TabularTranslator",
-											"typeConversion": true,
-											"typeConversionSettings": {
-												"allowDataTruncation": true,
-												"treatBooleanAsNumber": false
-											}
-										}
-									},
-									"inputs": [
-										{
-											"referenceName": "ds_adls2_poc_csv_param",
-											"type": "DatasetReference",
-											"parameters": {
-												"root_path": "explore-adls",
-												"directory_path": "poc/inbound/nycRaw",
-												"file_name": {
-													"value": "@item().name",
-													"type": "Expression"
-												}
-											}
-										}
-									],
-									"outputs": [
-										{
-											"referenceName": "ds_adls2_poc_csv_param",
-											"type": "DatasetReference",
-											"parameters": {
-												"root_path": "explore-adls",
-												"directory_path": "poc/outbound/nycRaw",
-												"file_name": {
-													"value": "@variables('file_name')",
-													"type": "Expression"
-												}
-											}
-										}
-									]
-								}
-							]
-						}
-					},
-					{
-						"name": "filter_files",
-						"type": "Filter",
-						"dependsOn": [
-							{
-								"activity": "get inbound raw content",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"items": {
-								"value": "@activity('get inbound raw content').output.childItems",
-								"type": "Expression"
-							},
-							"condition": {
-								"value": "@equals(item().type,'File')",
-								"type": "Expression"
-							}
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"variables": {
-					"file_name": {
-						"type": "String"
-					}
-				},
-				"folder": {
-					"name": "activities"
 				},
 				"annotations": []
 			},

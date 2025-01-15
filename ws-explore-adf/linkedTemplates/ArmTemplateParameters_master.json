@@ -50,6 +50,12 @@
 		"Weekly_Tumbling_Window_With_Gap_2_properties_pipeline_parameters_param_end_date": {
 			"value": "@{formatDateTime(trigger().outputs.windowEndTime,'yyyy-MM-dd')}"
 		},
+		"02_date_demo_properties_pipeline_parameters_param_start_date": {
+			"value": "@{formatDateTime(trigger().outputs.windowStartTime,'yyyy-MM-dd')}"
+		},
+		"02_date_demo_properties_pipeline_parameters_param_end_date": {
+			"value": "@{formatDateTime(trigger().outputs.windowEndTime,'yyyy-MM-dd')}"
+		},
 		"containerUri": {
 			"value": ""
 		},
