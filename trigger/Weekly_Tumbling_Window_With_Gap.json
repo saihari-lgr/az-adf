@@ -1,0 +1,17 @@
+{
+	"name": "Weekly_Tumbling_Window_With_Gap",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Stopped",
+		"pipelines": [],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Minute",
+				"interval": 15,
+				"startTime": "2025-01-15T19:40:00",
+				"timeZone": "India Standard Time"
+			}
+		}
+	}
+}
