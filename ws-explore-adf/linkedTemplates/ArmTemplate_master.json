@@ -35,6 +35,14 @@
 			"type": "string",
 			"defaultValue": "@{linkedService().baseUrl}"
 		},
+		"01_date_demo_properties_pipeline_parameters_param_start_date": {
+			"type": "string",
+			"defaultValue": "@{formatDateTime(trigger().outputs.windowStartTime,'yyyy-MM-dd')}"
+		},
+		"01_date_demo_properties_pipeline_parameters_param_end_date": {
+			"type": "string",
+			"defaultValue": "@{formatDateTime(trigger().outputs.windowEndTime,'yyyy-MM-dd')}"
+		},
 		"containerUri": {
 			"type": "string",
 			"metadata": "URI to storage account containing linked ARM templates"
@@ -82,6 +90,12 @@
 					},
 					"ls_webApi_properties_typeProperties_url": {
 						"value": "[parameters('ls_webApi_properties_typeProperties_url')]"
+					},
+					"01_date_demo_properties_pipeline_parameters_param_start_date": {
+						"value": "[parameters('01_date_demo_properties_pipeline_parameters_param_start_date')]"
+					},
+					"01_date_demo_properties_pipeline_parameters_param_end_date": {
+						"value": "[parameters('01_date_demo_properties_pipeline_parameters_param_end_date')]"
 					}
 				}
 			},

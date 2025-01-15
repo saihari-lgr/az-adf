@@ -26,6 +26,12 @@
 		"ls_webApi_properties_typeProperties_url": {
 			"value": "@{linkedService().baseUrl}"
 		},
+		"01_date_demo_properties_pipeline_parameters_param_start_date": {
+			"value": "@{formatDateTime(trigger().outputs.windowStartTime,'yyyy-MM-dd')}"
+		},
+		"01_date_demo_properties_pipeline_parameters_param_end_date": {
+			"value": "@{formatDateTime(trigger().outputs.windowEndTime,'yyyy-MM-dd')}"
+		},
 		"containerUri": {
 			"value": ""
 		},
