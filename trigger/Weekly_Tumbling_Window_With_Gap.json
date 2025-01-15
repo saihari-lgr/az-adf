@@ -3,7 +3,7 @@
 	"properties": {
 		"description": "Tumbling window trigger with a 1-day gap between weekly windows",
 		"annotations": [],
-		"runtimeState": "Stopped",
+		"runtimeState": "Started",
 		"pipeline": {
 			"pipelineReference": {
 				"referenceName": "05_dates_demo",
