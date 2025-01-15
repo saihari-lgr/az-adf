@@ -1,17 +1,16 @@
 {
 	"name": "Weekly_Tumbling_Window_With_Gap",
 	"properties": {
+		"description": "Tumbling window trigger with a 1-day gap between weekly windows",
 		"annotations": [],
 		"runtimeState": "Stopped",
-		"pipelines": [],
-		"type": "ScheduleTrigger",
+		"type": "TumblingWindowTrigger",
 		"typeProperties": {
-			"recurrence": {
-				"frequency": "Minute",
-				"interval": 15,
-				"startTime": "2025-01-15T19:40:00",
-				"timeZone": "India Standard Time"
-			}
+			"frequency": "Week",
+			"interval": 1,
+			"startTime": "2024-10-05T00:00:00Z",
+			"endTime": "2024-12-31T23:59:59Z",
+			"dependsOn": []
 		}
 	}
 }
