@@ -20,7 +20,7 @@
 			"interval": 144,
 			"startTime": "2024-10-05T00:00:00Z",
 			"endTime": "2024-12-31T23:59:59Z",
-			"delay": "01:00:00",
+			"delay": "24:00:00",
 			"maxConcurrency": 1,
 			"retryPolicy": {
 				"intervalInSeconds": 30
