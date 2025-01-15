@@ -1,0 +1,20 @@
+{
+	"name": "01_weekly_sat_fri",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Stopped",
+		"type": "TumblingWindowTrigger",
+		"typeProperties": {
+			"frequency": "Hour",
+			"interval": 168,
+			"startTime": "2024-10-05T00:00:00Z",
+			"endTime": "2025-01-01T23:59:00Z",
+			"delay": "01:00:00",
+			"maxConcurrency": 1,
+			"retryPolicy": {
+				"intervalInSeconds": 30
+			},
+			"dependsOn": []
+		}
+	}
+}
