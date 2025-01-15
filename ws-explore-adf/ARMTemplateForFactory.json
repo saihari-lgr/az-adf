@@ -50,6 +50,14 @@
 		"05_date_demo_scheduled_week_saturday_properties_05_dates_demo_parameters_param_end_date": {
 			"type": "string",
 			"defaultValue": "@{formatDateTime(trigger().outputs.windowEndTime,'yyyy-MM-dd')}"
+		},
+		"Weekly_Tumbling_Window_With_Gap_properties_pipeline_parameters_param_start_date": {
+			"type": "string",
+			"defaultValue": "@{formatDateTime(trigger().outputs.windowStartTime,'yyyy-MM-dd')}"
+		},
+		"Weekly_Tumbling_Window_With_Gap_properties_pipeline_parameters_param_end_date": {
+			"type": "string",
+			"defaultValue": "@{formatDateTime(trigger().outputs.windowEndTime,'yyyy-MM-dd')}"
 		}
 	},
 	"variables": {
@@ -1891,6 +1899,82 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/05_dates_demo')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "s_date",
+						"type": "SetVariable",
+						"dependsOn": [],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "v_sd",
+							"value": {
+								"value": "@pipeline().parameters.param_start_date",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "e_date",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "s_date",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "v_ed",
+							"value": {
+								"value": "@pipeline().parameters.param_end_date",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"param_start_date": {
+						"type": "string",
+						"defaultValue": "10-05-2024"
+					},
+					"param_end_date": {
+						"type": "string",
+						"defaultValue": "12-05-2024"
+					}
+				},
+				"variables": {
+					"v_sd": {
+						"type": "String"
+					},
+					"v_ed": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "activities"
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/05_validate_file_schema')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -2726,88 +2810,12 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/05_dates_demo')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "s_date",
-						"type": "SetVariable",
-						"dependsOn": [],
-						"policy": {
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"variableName": "v_sd",
-							"value": {
-								"value": "@pipeline().parameters.param_start_date",
-								"type": "Expression"
-							}
-						}
-					},
-					{
-						"name": "e_date",
-						"type": "SetVariable",
-						"dependsOn": [
-							{
-								"activity": "s_date",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"variableName": "v_ed",
-							"value": {
-								"value": "@pipeline().parameters.param_end_date",
-								"type": "Expression"
-							}
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"param_start_date": {
-						"type": "string",
-						"defaultValue": "10-05-2024"
-					},
-					"param_end_date": {
-						"type": "string",
-						"defaultValue": "12-05-2024"
-					}
-				},
-				"variables": {
-					"v_sd": {
-						"type": "String"
-					},
-					"v_ed": {
-						"type": "String"
-					}
-				},
-				"folder": {
-					"name": "activities"
-				},
-				"annotations": []
-			},
-			"dependsOn": []
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/01_date_demo')]",
 			"type": "Microsoft.DataFactory/factories/triggers",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"annotations": [],
-				"runtimeState": "Started",
+				"runtimeState": "Stopped",
 				"pipeline": {
 					"pipelineReference": {
 						"referenceName": "05_dates_demo",
@@ -2875,6 +2883,42 @@
 							]
 						}
 					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/05_dates_demo')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Weekly_Tumbling_Window_With_Gap')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Tumbling window trigger with a 1-day gap between weekly windows",
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipeline": {
+					"pipelineReference": {
+						"referenceName": "05_dates_demo",
+						"type": "PipelineReference"
+					},
+					"parameters": {
+						"param_start_date": "[parameters('Weekly_Tumbling_Window_With_Gap_properties_pipeline_parameters_param_start_date')]",
+						"param_end_date": "[parameters('Weekly_Tumbling_Window_With_Gap_properties_pipeline_parameters_param_end_date')]"
+					}
+				},
+				"type": "TumblingWindowTrigger",
+				"typeProperties": {
+					"frequency": "Hour",
+					"interval": 168,
+					"startTime": "2024-10-05T00:00:00Z",
+					"endTime": "2024-12-31T23:59:59Z",
+					"delay": "01:00:00",
+					"maxConcurrency": 1,
+					"retryPolicy": {
+						"intervalInSeconds": 30
+					},
+					"dependsOn": []
 				}
 			},
 			"dependsOn": [

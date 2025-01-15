@@ -37,6 +37,12 @@
 		},
 		"05_date_demo_scheduled_week_saturday_properties_05_dates_demo_parameters_param_end_date": {
 			"value": "@{formatDateTime(trigger().outputs.windowEndTime,'yyyy-MM-dd')}"
+		},
+		"Weekly_Tumbling_Window_With_Gap_properties_pipeline_parameters_param_start_date": {
+			"value": "@{formatDateTime(trigger().outputs.windowStartTime,'yyyy-MM-dd')}"
+		},
+		"Weekly_Tumbling_Window_With_Gap_properties_pipeline_parameters_param_end_date": {
+			"value": "@{formatDateTime(trigger().outputs.windowEndTime,'yyyy-MM-dd')}"
 		}
 	}
 }
