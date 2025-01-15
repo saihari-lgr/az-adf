@@ -43,6 +43,14 @@
 			"type": "string",
 			"defaultValue": "@{formatDateTime(trigger().outputs.windowEndTime,'yyyy-MM-dd')}"
 		},
+		"02_date_demo_properties_pipeline_parameters_param_start_date": {
+			"type": "string",
+			"defaultValue": "@{formatDateTime(trigger().outputs.windowStartTime,'yyyy-MM-dd')}"
+		},
+		"02_date_demo_properties_pipeline_parameters_param_end_date": {
+			"type": "string",
+			"defaultValue": "@{formatDateTime(trigger().outputs.windowEndTime,'yyyy-MM-dd')}"
+		},
 		"05_date_demo_scheduled_week_saturday_properties_05_dates_demo_parameters_param_start_date": {
 			"type": "string",
 			"defaultValue": "@{formatDateTime(trigger().outputs.windowStartTime,'yyyy-MM-dd')}"
@@ -64,14 +72,6 @@
 			"defaultValue": "@{formatDateTime(trigger().outputs.windowStartTime,'yyyy-MM-dd')}"
 		},
 		"Weekly_Tumbling_Window_With_Gap_2_properties_pipeline_parameters_param_end_date": {
-			"type": "string",
-			"defaultValue": "@{formatDateTime(trigger().outputs.windowEndTime,'yyyy-MM-dd')}"
-		},
-		"02_date_demo_properties_pipeline_parameters_param_start_date": {
-			"type": "string",
-			"defaultValue": "@{formatDateTime(trigger().outputs.windowStartTime,'yyyy-MM-dd')}"
-		},
-		"02_date_demo_properties_pipeline_parameters_param_end_date": {
 			"type": "string",
 			"defaultValue": "@{formatDateTime(trigger().outputs.windowEndTime,'yyyy-MM-dd')}"
 		}
@@ -2831,7 +2831,7 @@
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"annotations": [],
-				"runtimeState": "Stopped",
+				"runtimeState": "Started",
 				"pipeline": {
 					"pipelineReference": {
 						"referenceName": "05_dates_demo",
@@ -2849,6 +2849,41 @@
 					"startTime": "2024-10-05T00:00:00Z",
 					"endTime": "2024-10-26T00:00:00Z",
 					"delay": "00:02:00",
+					"maxConcurrency": 1,
+					"retryPolicy": {
+						"intervalInSeconds": 30
+					},
+					"dependsOn": []
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/05_dates_demo')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/02_date_demo')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Stopped",
+				"pipeline": {
+					"pipelineReference": {
+						"referenceName": "05_dates_demo",
+						"type": "PipelineReference"
+					},
+					"parameters": {
+						"param_start_date": "[parameters('02_date_demo_properties_pipeline_parameters_param_start_date')]",
+						"param_end_date": "[parameters('02_date_demo_properties_pipeline_parameters_param_end_date')]"
+					}
+				},
+				"type": "TumblingWindowTrigger",
+				"typeProperties": {
+					"frequency": "Hour",
+					"interval": 144,
+					"startTime": "2024-10-05T00:00:00Z",
+					"endTime": "2024-11-03T23:59:00Z",
+					"delay": "00:00:00",
 					"maxConcurrency": 1,
 					"retryPolicy": {
 						"intervalInSeconds": 30
@@ -2965,41 +3000,6 @@
 					"interval": 144,
 					"startTime": "2024-10-05T00:00:00Z",
 					"endTime": "2024-12-31T23:59:59Z",
-					"delay": "00:00:00",
-					"maxConcurrency": 1,
-					"retryPolicy": {
-						"intervalInSeconds": 30
-					},
-					"dependsOn": []
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/05_dates_demo')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/02_date_demo')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"runtimeState": "Started",
-				"pipeline": {
-					"pipelineReference": {
-						"referenceName": "05_dates_demo",
-						"type": "PipelineReference"
-					},
-					"parameters": {
-						"param_start_date": "[parameters('02_date_demo_properties_pipeline_parameters_param_start_date')]",
-						"param_end_date": "[parameters('02_date_demo_properties_pipeline_parameters_param_end_date')]"
-					}
-				},
-				"type": "TumblingWindowTrigger",
-				"typeProperties": {
-					"frequency": "Hour",
-					"interval": 144,
-					"startTime": "2024-10-05T00:00:00Z",
-					"endTime": "2024-11-03T23:59:00Z",
 					"delay": "00:00:00",
 					"maxConcurrency": 1,
 					"retryPolicy": {

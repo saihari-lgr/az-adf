@@ -43,6 +43,14 @@
 			"type": "string",
 			"defaultValue": "@{formatDateTime(trigger().outputs.windowEndTime,'yyyy-MM-dd')}"
 		},
+		"02_date_demo_properties_pipeline_parameters_param_start_date": {
+			"type": "string",
+			"defaultValue": "@{formatDateTime(trigger().outputs.windowStartTime,'yyyy-MM-dd')}"
+		},
+		"02_date_demo_properties_pipeline_parameters_param_end_date": {
+			"type": "string",
+			"defaultValue": "@{formatDateTime(trigger().outputs.windowEndTime,'yyyy-MM-dd')}"
+		},
 		"05_date_demo_scheduled_week_saturday_properties_05_dates_demo_parameters_param_start_date": {
 			"type": "string",
 			"defaultValue": "@{formatDateTime(trigger().outputs.windowStartTime,'yyyy-MM-dd')}"
@@ -64,14 +72,6 @@
 			"defaultValue": "@{formatDateTime(trigger().outputs.windowStartTime,'yyyy-MM-dd')}"
 		},
 		"Weekly_Tumbling_Window_With_Gap_2_properties_pipeline_parameters_param_end_date": {
-			"type": "string",
-			"defaultValue": "@{formatDateTime(trigger().outputs.windowEndTime,'yyyy-MM-dd')}"
-		},
-		"02_date_demo_properties_pipeline_parameters_param_start_date": {
-			"type": "string",
-			"defaultValue": "@{formatDateTime(trigger().outputs.windowStartTime,'yyyy-MM-dd')}"
-		},
-		"02_date_demo_properties_pipeline_parameters_param_end_date": {
 			"type": "string",
 			"defaultValue": "@{formatDateTime(trigger().outputs.windowEndTime,'yyyy-MM-dd')}"
 		},
@@ -129,6 +129,12 @@
 					"01_date_demo_properties_pipeline_parameters_param_end_date": {
 						"value": "[parameters('01_date_demo_properties_pipeline_parameters_param_end_date')]"
 					},
+					"02_date_demo_properties_pipeline_parameters_param_start_date": {
+						"value": "[parameters('02_date_demo_properties_pipeline_parameters_param_start_date')]"
+					},
+					"02_date_demo_properties_pipeline_parameters_param_end_date": {
+						"value": "[parameters('02_date_demo_properties_pipeline_parameters_param_end_date')]"
+					},
 					"05_date_demo_scheduled_week_saturday_properties_05_dates_demo_parameters_param_start_date": {
 						"value": "[parameters('05_date_demo_scheduled_week_saturday_properties_05_dates_demo_parameters_param_start_date')]"
 					},
@@ -146,12 +152,6 @@
 					},
 					"Weekly_Tumbling_Window_With_Gap_2_properties_pipeline_parameters_param_end_date": {
 						"value": "[parameters('Weekly_Tumbling_Window_With_Gap_2_properties_pipeline_parameters_param_end_date')]"
-					},
-					"02_date_demo_properties_pipeline_parameters_param_start_date": {
-						"value": "[parameters('02_date_demo_properties_pipeline_parameters_param_start_date')]"
-					},
-					"02_date_demo_properties_pipeline_parameters_param_end_date": {
-						"value": "[parameters('02_date_demo_properties_pipeline_parameters_param_end_date')]"
 					}
 				}
 			},
