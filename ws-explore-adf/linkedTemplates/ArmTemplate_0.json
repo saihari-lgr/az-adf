@@ -58,6 +58,14 @@
 		"Weekly_Tumbling_Window_With_Gap_properties_pipeline_parameters_param_end_date": {
 			"type": "string",
 			"defaultValue": "@{formatDateTime(trigger().outputs.windowEndTime,'yyyy-MM-dd')}"
+		},
+		"Weekly_Tumbling_Window_With_Gap_2_properties_pipeline_parameters_param_start_date": {
+			"type": "string",
+			"defaultValue": "@{formatDateTime(trigger().outputs.windowStartTime,'yyyy-MM-dd')}"
+		},
+		"Weekly_Tumbling_Window_With_Gap_2_properties_pipeline_parameters_param_end_date": {
+			"type": "string",
+			"defaultValue": "@{formatDateTime(trigger().outputs.windowEndTime,'yyyy-MM-dd')}"
 		}
 	},
 	"variables": {
@@ -784,7 +792,7 @@
 			"properties": {
 				"description": "Tumbling window trigger with a 1-day gap between weekly windows",
 				"annotations": [],
-				"runtimeState": "Started",
+				"runtimeState": "Stopped",
 				"pipeline": {
 					"pipelineReference": {
 						"referenceName": "05_dates_demo",
@@ -799,6 +807,42 @@
 				"typeProperties": {
 					"frequency": "Hour",
 					"interval": 168,
+					"startTime": "2024-10-05T00:00:00Z",
+					"endTime": "2024-12-31T23:59:59Z",
+					"delay": "01:00:00",
+					"maxConcurrency": 1,
+					"retryPolicy": {
+						"intervalInSeconds": 30
+					},
+					"dependsOn": []
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/05_dates_demo')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Weekly_Tumbling_Window_With_Gap_2')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Tumbling window trigger with a 1-day gap between weekly windows",
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipeline": {
+					"pipelineReference": {
+						"referenceName": "05_dates_demo",
+						"type": "PipelineReference"
+					},
+					"parameters": {
+						"param_start_date": "[parameters('Weekly_Tumbling_Window_With_Gap_2_properties_pipeline_parameters_param_start_date')]",
+						"param_end_date": "[parameters('Weekly_Tumbling_Window_With_Gap_2_properties_pipeline_parameters_param_end_date')]"
+					}
+				},
+				"type": "TumblingWindowTrigger",
+				"typeProperties": {
+					"frequency": "Hour",
+					"interval": 144,
 					"startTime": "2024-10-05T00:00:00Z",
 					"endTime": "2024-12-31T23:59:59Z",
 					"delay": "01:00:00",
@@ -1647,154 +1691,6 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/ds_adls2_poc_csv')]",
-				"[concat(variables('factoryId'), '/datasets/ds_adls2_poc_csv_param')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/03_generate_addition_cols_copying')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "copy file",
-						"type": "Copy",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "DelimitedTextSource",
-								"additionalColumns": [
-									{
-										"name": "SourceFile",
-										"value": "$$FILEPATH"
-									},
-									{
-										"name": "dup_Borough",
-										"value": "$$COLUMN:Borough"
-									},
-									{
-										"name": "pipeline_Name",
-										"value": {
-											"value": "@pipeline().Pipeline",
-											"type": "Expression"
-										}
-									},
-									{
-										"name": "static_Col",
-										"value": "ABCD"
-									}
-								],
-								"storeSettings": {
-									"type": "AzureBlobFSReadSettings",
-									"recursive": true,
-									"enablePartitionDiscovery": false
-								},
-								"formatSettings": {
-									"type": "DelimitedTextReadSettings"
-								}
-							},
-							"sink": {
-								"type": "DelimitedTextSink",
-								"storeSettings": {
-									"type": "AzureBlobFSWriteSettings"
-								},
-								"formatSettings": {
-									"type": "DelimitedTextWriteSettings",
-									"quoteAllText": true,
-									"fileExtension": ".txt"
-								}
-							},
-							"enableStaging": false,
-							"translator": {
-								"type": "TabularTranslator",
-								"typeConversion": true,
-								"typeConversionSettings": {
-									"allowDataTruncation": true,
-									"treatBooleanAsNumber": false
-								}
-							}
-						},
-						"inputs": [
-							{
-								"referenceName": "ds_adls2_poc_csv_param",
-								"type": "DatasetReference",
-								"parameters": {
-									"root_path": {
-										"value": "@pipeline().parameters.param_inbound_root_path",
-										"type": "Expression"
-									},
-									"directory_path": {
-										"value": "@pipeline().parameters.param_inbound_directory_path",
-										"type": "Expression"
-									},
-									"file_name": {
-										"value": "@pipeline().parameters.param_file_name",
-										"type": "Expression"
-									}
-								}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "ds_adls2_poc_csv_param",
-								"type": "DatasetReference",
-								"parameters": {
-									"root_path": {
-										"value": "@pipeline().parameters.param_output_root_path",
-										"type": "Expression"
-									},
-									"directory_path": {
-										"value": "@pipeline().parameters.param_output_directory_path",
-										"type": "Expression"
-									},
-									"file_name": {
-										"value": "@pipeline().parameters.param_file_name",
-										"type": "Expression"
-									}
-								}
-							}
-						]
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"param_file_name": {
-						"type": "string",
-						"defaultValue": "taxi_zone.csv"
-					},
-					"param_inbound_root_path": {
-						"type": "string",
-						"defaultValue": "explore-adls"
-					},
-					"param_inbound_directory_path": {
-						"type": "string",
-						"defaultValue": "poc/inbound/nycRaw"
-					},
-					"param_output_root_path": {
-						"type": "string",
-						"defaultValue": "explore-adls"
-					},
-					"param_output_directory_path": {
-						"type": "string",
-						"defaultValue": "poc/output/nycRaw"
-					}
-				},
-				"folder": {
-					"name": "poc"
-				},
-				"annotations": []
-			},
-			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/ds_adls2_poc_csv_param')]"
 			]
 		}
