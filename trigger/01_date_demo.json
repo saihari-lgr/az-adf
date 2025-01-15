@@ -1,0 +1,30 @@
+{
+	"name": "01_date_demo",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Started",
+		"pipeline": {
+			"pipelineReference": {
+				"referenceName": "05_dates_demo",
+				"type": "PipelineReference"
+			},
+			"parameters": {
+				"param_start_date": "@{formatDateTime(trigger().outputs.windowStartTime,'yyyy-MM-dd')}",
+				"param_end_date": "@{formatDateTime(trigger().outputs.windowEndTime,'yyyy-MM-dd')}"
+			}
+		},
+		"type": "TumblingWindowTrigger",
+		"typeProperties": {
+			"frequency": "Minute",
+			"interval": 1440,
+			"startTime": "2024-10-05T00:00:00Z",
+			"endTime": "2024-11-02T00:00:00Z",
+			"delay": "00:00:00",
+			"maxConcurrency": 1,
+			"retryPolicy": {
+				"intervalInSeconds": 30
+			},
+			"dependsOn": []
+		}
+	}
+}
