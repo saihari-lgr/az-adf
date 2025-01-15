@@ -62,7 +62,7 @@
 				"typeProperties": {
 					"variableName": "v_new_ed",
 					"value": {
-						"value": "@adddays(variables('v_ed'),-1)",
+						"value": "@adddays(variables('v_ed'),-1,'yyyy-MM-dd')",
 						"type": "Expression"
 					}
 				}
