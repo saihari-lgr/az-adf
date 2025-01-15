@@ -2,7 +2,7 @@
 	"name": "05_date_demo_scheduled_week_saturday",
 	"properties": {
 		"annotations": [],
-		"runtimeState": "Started",
+		"runtimeState": "Stopped",
 		"pipelines": [
 			{
 				"pipelineReference": {
