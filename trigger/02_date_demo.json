@@ -2,7 +2,7 @@
 	"name": "02_date_demo",
 	"properties": {
 		"annotations": [],
-		"runtimeState": "Started",
+		"runtimeState": "Stopped",
 		"pipeline": {
 			"pipelineReference": {
 				"referenceName": "05_dates_demo",
