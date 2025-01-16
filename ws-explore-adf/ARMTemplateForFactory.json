@@ -50,6 +50,14 @@
 		"01_weekly_sat_fri_properties_pipeline_parameters_param_end_date": {
 			"type": "string",
 			"defaultValue": "@{formatDateTime(trigger().outputs.windowEndTime,'yyyy-MM-dd')}"
+		},
+		"02_weekly_sat_fri_properties_pipeline_parameters_param_start_date": {
+			"type": "string",
+			"defaultValue": "@{formatDateTime(trigger().outputs.windowStartTime,'yyyy-MM-dd')}"
+		},
+		"02_weekly_sat_fri_properties_pipeline_parameters_param_end_date": {
+			"type": "string",
+			"defaultValue": "@{formatDateTime(trigger().outputs.windowEndTime,'yyyy-MM-dd')}"
 		}
 	},
 	"variables": {
@@ -2900,7 +2908,7 @@
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"annotations": [],
-				"runtimeState": "Started",
+				"runtimeState": "Stopped",
 				"pipeline": {
 					"pipelineReference": {
 						"referenceName": "05_dates_demo",
@@ -2917,6 +2925,41 @@
 					"interval": 168,
 					"startTime": "2024-10-05T00:00:00Z",
 					"endTime": "2025-01-01T23:59:00Z",
+					"delay": "01:00:00",
+					"maxConcurrency": 1,
+					"retryPolicy": {
+						"intervalInSeconds": 30
+					},
+					"dependsOn": []
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/05_dates_demo')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/02_weekly_sat_fri')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipeline": {
+					"pipelineReference": {
+						"referenceName": "05_dates_demo",
+						"type": "PipelineReference"
+					},
+					"parameters": {
+						"param_start_date": "[parameters('02_weekly_sat_fri_properties_pipeline_parameters_param_start_date')]",
+						"param_end_date": "[parameters('02_weekly_sat_fri_properties_pipeline_parameters_param_end_date')]"
+					}
+				},
+				"type": "TumblingWindowTrigger",
+				"typeProperties": {
+					"frequency": "Hour",
+					"interval": 168,
+					"startTime": "2024-10-05T00:00:00Z",
+					"endTime": "2025-01-02T23:59:00Z",
 					"delay": "01:00:00",
 					"maxConcurrency": 1,
 					"retryPolicy": {
