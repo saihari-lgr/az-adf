@@ -1960,6 +1960,30 @@
 								"type": "Expression"
 							}
 						}
+					},
+					{
+						"name": "raw_folder_path",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "new_ed",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "v_raw_folder_path",
+							"value": {
+								"value": "@concat(pipeline().parameters.param_folder_path,'/',formatDateTime(pipeline().TriggerTime,'yyyy'),'/',formatDateTime(pipeline().TriggerTime,'MM'),'/',formatDateTime(pipeline().TriggerTime,'dd'),'/',formatDateTime(pipeline().TriggerTime,'HH'),'/',formatDateTime(pipeline().TriggerTime,'mm'))",
+								"type": "Expression"
+							}
+						}
 					}
 				],
 				"policy": {
@@ -1973,6 +1997,10 @@
 					"param_end_date": {
 						"type": "string",
 						"defaultValue": "12-05-2024"
+					},
+					"param_folder_path": {
+						"type": "string",
+						"defaultValue": "raw/insight/"
 					}
 				},
 				"variables": {
@@ -1983,6 +2011,9 @@
 						"type": "String"
 					},
 					"v_new_ed": {
+						"type": "String"
+					},
+					"v_raw_folder_path": {
 						"type": "String"
 					}
 				},
