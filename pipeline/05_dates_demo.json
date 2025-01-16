@@ -90,6 +90,30 @@
 						"type": "Expression"
 					}
 				}
+			},
+			{
+				"name": "raw_folder_path_2",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "raw_folder_path",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "v_raw_folder_path",
+					"value": {
+						"value": "@concat(pipeline().parameters.param_folder_path,'/',formatDateTime(variables('v_sd'),'yyyy'),'/',formatDateTime(variables('v_sd'),'MM'),'/',formatDateTime(variables('v_sd'),'dd'),'/',formatDateTime(variables('v_sd'),'HH'),'/',formatDateTime(variables('v_sd'),'mm'))",
+						"type": "Expression"
+					}
+				}
 			}
 		],
 		"parameters": {
