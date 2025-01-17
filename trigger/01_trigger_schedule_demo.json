@@ -1,0 +1,39 @@
+{
+	"name": "01_trigger_schedule_demo",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Started",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "06_dates_demo_2",
+					"type": "PipelineReference"
+				},
+				"parameters": {
+					"param_start_date": "@{formatDateTime(adddays(trigger().ScheduledTime,-7), 'yyyy-MM-dd')}",
+					"param_end_date": "@{formatDateTime(adddays(trigger().ScheduledTime,-1), 'yyyy-MM-dd')}"
+				}
+			}
+		],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Week",
+				"interval": 1,
+				"startTime": "2025-01-17T11:17:00",
+				"timeZone": "India Standard Time",
+				"schedule": {
+					"minutes": [
+						0
+					],
+					"hours": [
+						2
+					],
+					"weekDays": [
+						"Saturday"
+					]
+				}
+			}
+		}
+	}
+}

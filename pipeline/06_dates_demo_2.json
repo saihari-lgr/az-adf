@@ -1,0 +1,58 @@
+{
+	"name": "06_dates_demo_2",
+	"properties": {
+		"activities": [
+			{
+				"name": "start date",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "vSD",
+					"value": {
+						"value": "@pipeline().parameters.param_start_date",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Set variable1",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "start date",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": []
+			}
+		],
+		"parameters": {
+			"param_start_date": {
+				"type": "string"
+			},
+			"param_end_date": {
+				"type": "string"
+			}
+		},
+		"variables": {
+			"vSD": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "activities"
+		},
+		"annotations": []
+	}
+}
