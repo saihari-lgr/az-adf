@@ -58,6 +58,18 @@
 		"02_weekly_sat_fri_properties_pipeline_parameters_param_end_date": {
 			"type": "string",
 			"defaultValue": "@{formatDateTime(trigger().outputs.windowEndTime,'yyyy-MM-dd')}"
+		},
+		"01_trigger_schedule_demo_properties_06_dates_demo_2_parameters_param_start_date": {
+			"type": "string",
+			"defaultValue": "@{formatDateTime(adddays(trigger().ScheduledTime,-7), 'yyyy-MM-dd')}"
+		},
+		"01_trigger_schedule_demo_properties_06_dates_demo_2_parameters_param_end_date": {
+			"type": "string",
+			"defaultValue": "@{formatDateTime(adddays(trigger().ScheduledTime,-1), 'yyyy-MM-dd')}"
+		},
+		"01_trigger_schedule_demo_properties_06_dates_demo_2_parameters_param_schedule_date": {
+			"type": "string",
+			"defaultValue": "@{formatDateTime(trigger().ScheduledTime, 'yyyy-MM-dd')}"
 		}
 	},
 	"variables": {
@@ -238,6 +250,30 @@
 								"type": "Expression"
 							}
 						}
+					},
+					{
+						"name": "raw_folder_path_2",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "raw_folder_path",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "v_raw_folder_path",
+							"value": {
+								"value": "@concat(pipeline().parameters.param_folder_path,'/',formatDateTime(variables('v_sd'),'yyyy'),'/',formatDateTime(variables('v_sd'),'MM'),'/',formatDateTime(variables('v_sd'),'dd'),'/',formatDateTime(variables('v_sd'),'HH'),'/',formatDateTime(variables('v_sd'),'mm'))",
+								"type": "Expression"
+							}
+						}
 					}
 				],
 				"policy": {
@@ -268,6 +304,15 @@
 						"type": "String"
 					},
 					"v_raw_folder_path": {
+						"type": "String"
+					},
+					"vStartDate": {
+						"type": "String"
+					},
+					"vScheduleDate": {
+						"type": "String"
+					},
+					"vEndDate": {
 						"type": "String"
 					}
 				},
@@ -335,6 +380,110 @@
 					"enableServerCertificateValidation": false,
 					"authenticationType": "Anonymous"
 				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/06_dates_demo_2')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "start date",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "schedule date",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "vStartDate",
+							"value": {
+								"value": "@pipeline().parameters.param_start_date",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "end date",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "start date",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "vEndDate",
+							"value": {
+								"value": "@pipeline().parameters.param_end_date",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "schedule date",
+						"type": "SetVariable",
+						"dependsOn": [],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "vScheduleDate",
+							"value": {
+								"value": "@pipeline().parameters.param_schedule_date",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"param_start_date": {
+						"type": "string"
+					},
+					"param_end_date": {
+						"type": "string"
+					},
+					"param_schedule_date": {
+						"type": "string"
+					}
+				},
+				"variables": {
+					"vStartDate": {
+						"type": "String"
+					},
+					"vScheduleDate": {
+						"type": "String"
+					},
+					"vEndDate": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "activities"
+				},
+				"annotations": []
 			},
 			"dependsOn": []
 		},
@@ -858,6 +1007,51 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/pipelines/05_dates_demo')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/01_trigger_schedule_demo')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "06_dates_demo_2",
+							"type": "PipelineReference"
+						},
+						"parameters": {
+							"param_start_date": "[parameters('01_trigger_schedule_demo_properties_06_dates_demo_2_parameters_param_start_date')]",
+							"param_end_date": "[parameters('01_trigger_schedule_demo_properties_06_dates_demo_2_parameters_param_end_date')]",
+							"param_schedule_date": "[parameters('01_trigger_schedule_demo_properties_06_dates_demo_2_parameters_param_schedule_date')]"
+						}
+					}
+				],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Week",
+						"interval": 1,
+						"startTime": "2025-01-17T11:17:00",
+						"timeZone": "India Standard Time",
+						"schedule": {
+							"minutes": [
+								0
+							],
+							"hours": [
+								2
+							],
+							"weekDays": [
+								"Saturday"
+							]
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/06_dates_demo_2')]"
 			]
 		},
 		{
@@ -1494,354 +1688,6 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/ds_adls2_poc_csv')]",
-				"[concat(variables('factoryId'), '/datasets/ds_adls2_poc_csv_param')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/02_get_metadata')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "get  metadat info",
-				"activities": [
-					{
-						"name": "get inbound raw content",
-						"type": "GetMetadata",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataset": {
-								"referenceName": "ds_adls2_poc_csv",
-								"type": "DatasetReference",
-								"parameters": {}
-							},
-							"fieldList": [
-								"childItems"
-							],
-							"storeSettings": {
-								"type": "AzureBlobFSReadSettings",
-								"recursive": true,
-								"enablePartitionDiscovery": false
-							},
-							"formatSettings": {
-								"type": "DelimitedTextReadSettings"
-							}
-						}
-					},
-					{
-						"name": "iterate over files",
-						"type": "ForEach",
-						"dependsOn": [
-							{
-								"activity": "filter_files",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"items": {
-								"value": "@activity('filter_files').output.Value",
-								"type": "Expression"
-							},
-							"isSequential": true,
-							"activities": [
-								{
-									"name": "formet file name",
-									"type": "SetVariable",
-									"dependsOn": [],
-									"policy": {
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"variableName": "file_name",
-										"value": {
-											"value": "@concat(split(item().name,'.')[0],'_',formatDateTime(utcnow(), 'MMddyyyyHHmmss'),'.',split(item().name,'.')[1])",
-											"type": "Expression"
-										}
-									}
-								},
-								{
-									"name": "Copy file to outbound",
-									"type": "Copy",
-									"dependsOn": [
-										{
-											"activity": "formet file name",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										}
-									],
-									"policy": {
-										"timeout": "0.12:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"source": {
-											"type": "DelimitedTextSource",
-											"storeSettings": {
-												"type": "AzureBlobFSReadSettings",
-												"recursive": true,
-												"enablePartitionDiscovery": false
-											},
-											"formatSettings": {
-												"type": "DelimitedTextReadSettings"
-											}
-										},
-										"sink": {
-											"type": "DelimitedTextSink",
-											"storeSettings": {
-												"type": "AzureBlobFSWriteSettings"
-											},
-											"formatSettings": {
-												"type": "DelimitedTextWriteSettings",
-												"quoteAllText": true,
-												"fileExtension": ".txt"
-											}
-										},
-										"enableStaging": false,
-										"translator": {
-											"type": "TabularTranslator",
-											"typeConversion": true,
-											"typeConversionSettings": {
-												"allowDataTruncation": true,
-												"treatBooleanAsNumber": false
-											}
-										}
-									},
-									"inputs": [
-										{
-											"referenceName": "ds_adls2_poc_csv_param",
-											"type": "DatasetReference",
-											"parameters": {
-												"root_path": "explore-adls",
-												"directory_path": "poc/inbound/nycRaw",
-												"file_name": {
-													"value": "@item().name",
-													"type": "Expression"
-												}
-											}
-										}
-									],
-									"outputs": [
-										{
-											"referenceName": "ds_adls2_poc_csv_param",
-											"type": "DatasetReference",
-											"parameters": {
-												"root_path": "explore-adls",
-												"directory_path": "poc/outbound/nycRaw",
-												"file_name": {
-													"value": "@variables('file_name')",
-													"type": "Expression"
-												}
-											}
-										}
-									]
-								}
-							]
-						}
-					},
-					{
-						"name": "filter_files",
-						"type": "Filter",
-						"dependsOn": [
-							{
-								"activity": "get inbound raw content",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"items": {
-								"value": "@activity('get inbound raw content').output.childItems",
-								"type": "Expression"
-							},
-							"condition": {
-								"value": "@equals(item().type,'File')",
-								"type": "Expression"
-							}
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"variables": {
-					"file_name": {
-						"type": "String"
-					}
-				},
-				"folder": {
-					"name": "activities"
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/ds_adls2_poc_csv')]",
-				"[concat(variables('factoryId'), '/datasets/ds_adls2_poc_csv_param')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/03_generate_addition_cols_copying')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "copy file",
-						"type": "Copy",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "DelimitedTextSource",
-								"additionalColumns": [
-									{
-										"name": "SourceFile",
-										"value": "$$FILEPATH"
-									},
-									{
-										"name": "dup_Borough",
-										"value": "$$COLUMN:Borough"
-									},
-									{
-										"name": "pipeline_Name",
-										"value": {
-											"value": "@pipeline().Pipeline",
-											"type": "Expression"
-										}
-									},
-									{
-										"name": "static_Col",
-										"value": "ABCD"
-									}
-								],
-								"storeSettings": {
-									"type": "AzureBlobFSReadSettings",
-									"recursive": true,
-									"enablePartitionDiscovery": false
-								},
-								"formatSettings": {
-									"type": "DelimitedTextReadSettings"
-								}
-							},
-							"sink": {
-								"type": "DelimitedTextSink",
-								"storeSettings": {
-									"type": "AzureBlobFSWriteSettings"
-								},
-								"formatSettings": {
-									"type": "DelimitedTextWriteSettings",
-									"quoteAllText": true,
-									"fileExtension": ".txt"
-								}
-							},
-							"enableStaging": false,
-							"translator": {
-								"type": "TabularTranslator",
-								"typeConversion": true,
-								"typeConversionSettings": {
-									"allowDataTruncation": true,
-									"treatBooleanAsNumber": false
-								}
-							}
-						},
-						"inputs": [
-							{
-								"referenceName": "ds_adls2_poc_csv_param",
-								"type": "DatasetReference",
-								"parameters": {
-									"root_path": {
-										"value": "@pipeline().parameters.param_inbound_root_path",
-										"type": "Expression"
-									},
-									"directory_path": {
-										"value": "@pipeline().parameters.param_inbound_directory_path",
-										"type": "Expression"
-									},
-									"file_name": {
-										"value": "@pipeline().parameters.param_file_name",
-										"type": "Expression"
-									}
-								}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "ds_adls2_poc_csv_param",
-								"type": "DatasetReference",
-								"parameters": {
-									"root_path": {
-										"value": "@pipeline().parameters.param_output_root_path",
-										"type": "Expression"
-									},
-									"directory_path": {
-										"value": "@pipeline().parameters.param_output_directory_path",
-										"type": "Expression"
-									},
-									"file_name": {
-										"value": "@pipeline().parameters.param_file_name",
-										"type": "Expression"
-									}
-								}
-							}
-						]
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"param_file_name": {
-						"type": "string",
-						"defaultValue": "taxi_zone.csv"
-					},
-					"param_inbound_root_path": {
-						"type": "string",
-						"defaultValue": "explore-adls"
-					},
-					"param_inbound_directory_path": {
-						"type": "string",
-						"defaultValue": "poc/inbound/nycRaw"
-					},
-					"param_output_root_path": {
-						"type": "string",
-						"defaultValue": "explore-adls"
-					},
-					"param_output_directory_path": {
-						"type": "string",
-						"defaultValue": "poc/output/nycRaw"
-					}
-				},
-				"folder": {
-					"name": "poc"
-				},
-				"annotations": []
-			},
-			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/ds_adls2_poc_csv_param')]"
 			]
 		}

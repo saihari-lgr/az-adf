@@ -44,6 +44,15 @@
 		"02_weekly_sat_fri_properties_pipeline_parameters_param_end_date": {
 			"value": "@{formatDateTime(trigger().outputs.windowEndTime,'yyyy-MM-dd')}"
 		},
+		"01_trigger_schedule_demo_properties_06_dates_demo_2_parameters_param_start_date": {
+			"value": "@{formatDateTime(adddays(trigger().ScheduledTime,-7), 'yyyy-MM-dd')}"
+		},
+		"01_trigger_schedule_demo_properties_06_dates_demo_2_parameters_param_end_date": {
+			"value": "@{formatDateTime(adddays(trigger().ScheduledTime,-1), 'yyyy-MM-dd')}"
+		},
+		"01_trigger_schedule_demo_properties_06_dates_demo_2_parameters_param_schedule_date": {
+			"value": "@{formatDateTime(trigger().ScheduledTime, 'yyyy-MM-dd')}"
+		},
 		"containerUri": {
 			"value": ""
 		},
