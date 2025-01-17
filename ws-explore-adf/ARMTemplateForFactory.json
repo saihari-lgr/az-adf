@@ -3150,10 +3150,10 @@
 						"timeZone": "India Standard Time",
 						"schedule": {
 							"minutes": [
-								0
+								7
 							],
 							"hours": [
-								2
+								17
 							],
 							"weekDays": [
 								"Friday"
