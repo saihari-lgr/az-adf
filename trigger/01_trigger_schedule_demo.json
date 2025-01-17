@@ -11,7 +11,8 @@
 				},
 				"parameters": {
 					"param_start_date": "@{formatDateTime(adddays(trigger().ScheduledTime,-7), 'yyyy-MM-dd')}",
-					"param_end_date": "@{formatDateTime(adddays(trigger().ScheduledTime,-1), 'yyyy-MM-dd')}"
+					"param_end_date": "@{formatDateTime(adddays(trigger().ScheduledTime,-1), 'yyyy-MM-dd')}",
+					"param_schedule_date": "@{formatDateTime(trigger().ScheduledTime, 'yyyy-MM-dd')}"
 				}
 			}
 		],

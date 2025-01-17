@@ -5,14 +5,21 @@
 			{
 				"name": "start date",
 				"type": "SetVariable",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "schedule date",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"secureOutput": false,
 					"secureInput": false
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"variableName": "vSD",
+					"variableName": "vStartDate",
 					"value": {
 						"value": "@pipeline().parameters.param_start_date",
 						"type": "Expression"
@@ -20,7 +27,7 @@
 				}
 			},
 			{
-				"name": "Set variable1",
+				"name": "end date",
 				"type": "SetVariable",
 				"dependsOn": [
 					{
@@ -34,7 +41,31 @@
 					"secureOutput": false,
 					"secureInput": false
 				},
-				"userProperties": []
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "vEndDate",
+					"value": {
+						"value": "@pipeline().parameters.param_end_date",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "schedule date",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "vScheduleDate",
+					"value": {
+						"value": "@pipeline().parameters.param_schedule_date",
+						"type": "Expression"
+					}
+				}
 			}
 		],
 		"parameters": {
@@ -43,10 +74,19 @@
 			},
 			"param_end_date": {
 				"type": "string"
+			},
+			"param_schedule_date": {
+				"type": "string"
 			}
 		},
 		"variables": {
-			"vSD": {
+			"vStartDate": {
+				"type": "String"
+			},
+			"vScheduleDate": {
+				"type": "String"
+			},
+			"vEndDate": {
 				"type": "String"
 			}
 		},
